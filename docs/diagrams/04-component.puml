@@ -1,0 +1,51 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+package "UI (React)" {
+  [Screens] as UI
+  [UrlState] as URL
+}
+package "Core (plain TypeScript)" {
+  [BatchLoader] as BL
+  [BroadSubjectHandler] as BSH
+  [LabelFiller] as LF
+  [TimelineStore] as TS
+  [KeyStore] as KS
+  [ViewEngine] as VE
+  [CurationStore] as CS
+  [FileExchange] as FX
+}
+package "Data access (only path to the network)" {
+  component "TimelineSource\n<<interface>>" as TSrc
+  [WikidataSource] as WS
+  [RequestGate] as RG
+}
+database "LocalStore\n(IndexedDB)" as LS
+UI --> URL
+UI --> VE
+UI --> BL
+UI --> CS
+UI --> FX
+BL --> TSrc
+LF --> TSrc
+UI --> TSrc : subject and\nproperty search
+WS ..|> TSrc
+WS --> RG
+BL --> BSH
+BL --> TS
+LF --> TS
+TS --> KS
+VE --> TS
+VE --> CS
+FX --> TS
+FX --> CS
+TS --> LS : cache
+CS --> LS : curation
+@enduml

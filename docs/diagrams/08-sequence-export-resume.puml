@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+autonumber
+actor User
+participant Screens
+participant FileExchange
+participant TimelineStore
+participant CurationStore
+participant BatchLoader
+participant WikidataSource
+User -> Screens : Export all (or Export selected)
+Screens -> FileExchange : export(kind)
+FileExchange -> TimelineStore : events, series progress
+FileExchange -> CurationStore : selection, notes, tags
+FileExchange --> User : chronicle-Q22686-2026-11-13.json
+== later, maybe in another browser ==
+User -> Screens : Import file
+Screens -> FileExchange : import(file)
+FileExchange -> FileExchange : size <= 50 MB, parse,\nvalidate schemaVersion and every field
+alt invalid or unknown version
+  FileExchange --> Screens : "This file could not be opened: <reason>"
+else valid
+  FileExchange -> TimelineStore : replace(events, series)\n(KeyStore rebuilt from keys)
+  FileExchange -> CurationStore : restore(selection, notes, tags)
+  TimelineStore --> Screens : sorted, labeled list, no Wikidata call
+  User -> Screens : Resume (full) or Load the rest (curated)
+  Screens -> BatchLoader : resume()
+  BatchLoader -> WikidataSource : fetchBatch(incomplete series, nextOffset)
+  WikidataSource --> BatchLoader : rows
+  BatchLoader -> TimelineStore : addRows (known keys skipped)
+end
+@enduml
