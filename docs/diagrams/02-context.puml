@@ -1,0 +1,27 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+left to right direction
+actor "Visitor or\nResearcher" as U
+actor "Developer\n(Filliciano Plong)" as Dev
+rectangle "Chronicle v1\nstatic web app" as C #EEF3FA
+cloud "Wikidata Query Service\nquery.wikidata.org" as WDQS
+cloud "Wikidata API\nwww.wikidata.org/w/api.php" as API
+cloud "GitHub\n(repository, Actions, Pages)" as GH
+U --> C : search, filter,\ncurate, export
+C --> WDQS : SPARQL batches\n(HTTPS, JSON)
+C --> API : search, labels,\nproperty search
+GH --> C : serves static files
+Dev --> GH : pull requests
+note bottom of C
+  No Chronicle server, account, or database (C-01).
+  The browser is the only place data lives.
+end note
+@enduml

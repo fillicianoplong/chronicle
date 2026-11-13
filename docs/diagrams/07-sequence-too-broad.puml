@@ -1,0 +1,42 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+autonumber
+actor User
+participant Screens
+participant BatchLoader
+participant BroadSubjectHandler
+participant WikidataSource
+participant "WDQS" as WD
+User -> Screens : picks United States (Q30)
+Screens -> BatchLoader : start(subject)
+BatchLoader -> WikidataSource : fetchBatch(series all, offset 0)
+WikidataSource -> WD : SPARQL
+... 60 s, no answer ...
+WikidataSource --> BatchLoader : error timeout (request aborted)
+BatchLoader -> BroadSubjectHandler : first batch failed (timeout)
+BroadSubjectHandler --> Screens : "Subject too broad" with\nTry again and relationship picker
+alt Try again
+  User -> Screens : Try again (OD-20)
+  Screens -> BatchLoader : start(subject) again
+else load one relationship
+  User -> Screens : finds "applies to jurisdiction" (P1001)
+  Screens -> BatchLoader : addSeries(P1001)
+  BatchLoader -> WikidataSource : fetchBatch(series P1001, offset 0)
+  WikidataSource -> WD : SPARQL limited to P1001
+  WD --> BatchLoader : 5,000 sorted rows (about 1.4 s measured)
+  BatchLoader --> Screens : events shown, loading continues
+else generic place link (P17, P27)
+  BroadSubjectHandler --> Screens : shown as too large;\n cannot be picked (FR-41)
+end
+note over BroadSubjectHandler
+  A series whose own first batch times out
+  is marked tooLarge (FR-42).
+end note
+@enduml

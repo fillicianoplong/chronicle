@@ -3,7 +3,7 @@
 A searchable, date-sorted timeline of any subject, built from Wikidata  
 Prepared by Filliciano Plong  
 November 13, 2026  
-Version 1.3  
+Version 1.4  
 
 ## Contents
 
@@ -33,6 +33,7 @@ Version 1.3
 | 1.1 | November 13, 2026 | Recorded all 13 decisions. Replaced the result cap with 5,000-row batches, a Load more control, and 50-event pages. The repository is public under the MIT license from the start. |
 | 1.2 | November 13, 2026 | Rows now load without labels, in batches that follow one another on their own, with Stop and Resume; labels follow in groups of 50. Added too-broad subject handling by relationship, JSON export and import with resume, row keys that prevent duplicates, and the load-test evidence in *Appendix A*. Dropped the Load more button. |
 | 1.3 | November 13, 2026 | Added curation: event selection, Export selected for curated research files, and notes and tags with a tag filter. Recorded the too-broad rule (60 s, with Try again) and the loading targets as decided. |
+| 1.4 | November 13, 2026 | Date precision and BCE years are now Musts, with precision fetched in every batch query; the cost is measured in *Appendix A*. Resume starts one batch early for timelines reopened from a file or the cache. Brought the scope and user interface sections in line with curation. |
 
 ## 1. Introduction
 
@@ -112,8 +113,8 @@ Chronicle v1 turns one subject into one timeline, using Wikidata only, entirely 
 
 - Other data sources, such as the Federal Register and Congress.gov, and merging sources.
 - A backend server or database.
-- Curating or hiding events. Every dated item is shown; users narrow with filters.
-- Accounts, saved timelines, and user notes.
+- Hiding or deleting events. Every dated item is shown; users narrow with filters and selection.
+- Accounts, and timelines or notes saved on a server.
 - Editing Wikidata.
 - A non-English interface.
 - Comparing several subjects on one timeline.
@@ -215,7 +216,7 @@ Once a subject is picked, Chronicle queries for every dated item linked to it. R
 | FR-12 | The system shall query for every item linked to the subject through any direct property. | Must | Test (contract) |
 | FR-13 | The system shall include items dated by any property in the *Date property reference*. | Must | Test (contract). See OD-05 |
 | FR-14 | The system shall include all dates, with no lower or upper date limit. | Must | Test (contract). See OD-02 |
-| FR-15 | The system shall fetch only item, property, and date in each batch, without the SPARQL label service. | Must | Inspection, Test (contract). See OD-13 |
+| FR-15 | The system shall fetch only item, property, date, date property, and date precision in each batch, without the SPARQL label service. | Must | Inspection, Test (contract). See OD-13 |
 | FR-16 | The system shall fetch English labels and descriptions with `wbgetentities`, 50 IDs per request. | Must | Test (contract). See OD-13 |
 | FR-17 | The system shall show the Q-ID or P-ID until a label arrives, or when none exists in English. | Must | Test (unit). See OD-09 |
 | FR-18 | The system shall request query results in the SPARQL JSON results format. | Must | Inspection, Test (unit) |
@@ -266,8 +267,8 @@ Wikidata dates range from deep history to scheduled future events, and many are 
 | ID | Requirement | Priority | Verification |
 |---|---|---|---|
 | FR-44 | The system shall sort events in true date order, including dates before year 1. | Must | Test (unit) |
-| FR-45 | The system shall show a date before year 1 as a BCE year, such as 44 BCE. | Should | Test (unit). See OD-03 |
-| FR-46 | The system shall show each date at its recorded precision: year, month, or day. | Should | Test (unit). See OD-03 |
+| FR-45 | The system shall show a date before year 1 as a BCE year, such as 44 BCE. | Must | Test (unit). See OD-03 |
+| FR-46 | The system shall show each date at its recorded precision, such as year, month, or day. | Must | Test (unit). See OD-03 |
 | FR-47 | The system shall sort a year-only date before full dates in the same year. | Could | Test (unit) |
 | FR-48 | The system shall mark events dated after today as future. | Could | Test (unit) |
 
@@ -358,7 +359,7 @@ A saved file lets the user reopen a timeline instantly and keep loading it later
 | FR-92 | The system shall import an exported file and show its sorted, labeled list without querying Wikidata. | Must | Test (E2E network log) |
 | FR-93 | The system shall restore the file's subject, filters, sort, and loading progress on import. | Must | Test (unit, E2E) |
 | FR-94 | The system shall offer Resume for an imported timeline that is not complete. | Must | Test (E2E) |
-| FR-95 | The system shall re-fetch only incomplete relationships and batches when resuming. | Must | Test (unit) |
+| FR-95 | The system shall re-fetch only incomplete relationships and batches, starting one batch early for a file or cached timeline. | Must | Test (unit) |
 | FR-96 | The system shall reject a file with an unknown schema version or invalid content, and say why. | Must | Test (unit, E2E) |
 | FR-97 | The system shall show an imported file's fetch time and offer a full refresh. | Should | Test (E2E) |
 | FR-98 | The system shall let the user download the filtered events as CSV. | Could | Test (unit) |
@@ -670,7 +671,7 @@ Chronicle stores nothing on a server. It holds query results in memory and, for 
 | Event | label, description | As Subject; shown unchanged |
 | Event | relationships | One or more property IDs and English labels |
 | Event | date | Wikidata time text, kept as text; may be negative or longer than four digits |
-| Event | precision | Year, month, or day (Should; see OD-03) |
+| Event | precision | As recorded: year, month, or day, or coarser such as decade or century (see OD-03) |
 | Event | dateProperty | One of the *Date property reference* properties |
 | Event | sourceUrl | `https://www.wikidata.org/wiki/<itemId>` |
 | Load progress | series, rowsLoaded, complete, tooLarge | One series for the whole subject, or one per chosen relationship |
@@ -711,8 +712,10 @@ The CSV export of the sample is correctly quoted, but splitting on commas breaks
 
 | Screen | Contents |
 |---|---|
-| Home | Subject search box with suggestions; short explanation; attribution |
-| Timeline | Subject header; filter panel (text, relationships, dates, sort); event list or visual timeline; counts; Copy link |
+| Home | Subject search box with suggestions; Import file; short explanation; attribution |
+| Timeline | Subject header; filter panel (text, relationships, dates, tags, sort); event list or visual timeline; counts; Copy link; loading progress with Stop and Resume |
+| Timeline: curation | Checkbox on each event; Select all on this page; Select all filtered; Clear selection; selected count; Selected only view; note and tag editor |
+| Timeline: files | Export all; Export selected; Import file; fetch time with Refresh |
 | About | How events are gathered, known limits, data source and license |
 
 Accessibility follows WCAG 2.2 AA (NFR-36). The layout works from 320 px wide (NFR-40).
@@ -748,7 +751,7 @@ The owner decided all 19 questions on November 13, 2026. OD-13 to OD-15 were add
 | OD-03 | How should BCE dates and year-only or month-only dates be handled? |
 |---|---|
 | Options | A. Show the raw date value. Simple, but a year-only date shows as January 1.<br>B. Also query each date's precision and show year, month, or day as recorded; show BCE years. Correct, but the query is larger. |
-| Decision | B. Query precision; show BCE years. |
+| Decision | B. Query precision; show BCE years. Made a Must in version 1.4 (*Appendix A*). |
 | Status | Decided, Nov 13, 2026 |
 
 | OD-04 | When one item links to the subject in several ways, is it one event or several? |
@@ -952,8 +955,8 @@ Each requirement maps to use cases and its verification. Architecture elements a
 | FR-42 | Must | UC-06 | Test (unit) |
 | FR-43 | Should | UC-06 | Inspection |
 | FR-44 | Must | UC-01 | Test (unit) |
-| FR-45 | Should | UC-01 | Test (unit). See OD-03 |
-| FR-46 | Should | UC-01 | Test (unit). See OD-03 |
+| FR-45 | Must | UC-01 | Test (unit). See OD-03 |
+| FR-46 | Must | UC-01 | Test (unit). See OD-03 |
 | FR-47 | Could | UC-01 | Test (unit) |
 | FR-48 | Could | UC-01 | Test (unit) |
 | FR-49 | Must | UC-01 | Test (E2E) |
@@ -1121,7 +1124,7 @@ Named reference tables used by the requirements.
 |---|---|---|
 | Entity search | `https://www.wikidata.org/w/api.php?action=wbsearchentities` | `language=en`, `format=json`, `origin=*`; prefix match only |
 | Fuzzy fallback | `https://www.wikidata.org/w/api.php?action=query&list=search` | `~` after a word allows typos |
-| Timeline query | `https://query.wikidata.org/sparql` | Accept `application/sparql-results+json`; no label service; `ORDER BY` date, item, property; `LIMIT 5000`, `OFFSET`; 60 s deadline per batch; 429 with Retry-After |
+| Timeline query | `https://query.wikidata.org/sparql` | Accept `application/sparql-results+json`; no label service; date and precision from the best-rank statement value (`wikibase:timeValue`, `wikibase:timePrecision`); `ORDER BY` date, item, property; `LIMIT 5000`, `OFFSET`; 60 s deadline per batch; 429 with Retry-After |
 | Label lookup | `https://www.wikidata.org/w/api.php?action=wbgetentities` | Up to 50 IDs; `props=labels\|descriptions`, `languages=en`, `origin=*` |
 | Property search | `https://www.wikidata.org/w/api.php?action=wbsearchentities&type=property` | Relationship picker for too-broad subjects |
 | Item pages | `https://www.wikidata.org/wiki/<Q-ID>` | Source links only; no calls |
@@ -1227,3 +1230,15 @@ Takeaways: counting first is too slow to run before every search. The label serv
 | One relationship: country (P17), year 2000 only | Timed out (60 s limit) | Marked too large |
 
 Date windows fail because the service gathers every item linked to the subject before it applies the dates. A smaller window costs as much as the whole subject, so splitting busy years would not help. Loading the full United States live would take about 45 minutes for the first 500,000 rows and could not finish. That work belongs to the v2 backend, which can build such timelines from Wikidata bulk dumps.
+
+### A.3 Cost of fetching date precision
+
+Run on November 13, 2026, for version 1.4. Each batch ran once without precision (`wdt:` dates) and once with precision (best-rank statement value with `wikibase:timePrecision`), one query at a time, 12 s apart, with an `Api-User-Agent` header. Round 2 ran the pairs in the opposite order.
+
+| Batch | Round 1: without / with | Round 2: with / without | Rows |
+|---|---|---|---|
+| Donald Trump, rows 1 to 1,897 | 1.6 s / 12.8 s | 0.6 s / 0.4 s (served from the service cache) | 1,897 both ways |
+| World War II, rows 1 to 5,000 | 4.3 s / 9.7 s | 32.1 s / 42.2 s | 5,000 both ways |
+| World War II, rows 5,001 to 10,000 | 8.4 s / 9.1 s | 25.8 s / 18.7 s | 5,000 both ways |
+
+Precision added between 1 and 11 s in the first round, and the second round swung more than that in both directions, so service load matters more than the extra lookup. Every batch stayed well within 60 s and returned the same rows. Precision matters: in the first World War II batch, 3,424 of 5,000 dates were year-only, and 1,720 of Donald Trump's 1,897 dates were exact days.

@@ -1,0 +1,42 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+autonumber
+actor User
+participant Screens
+participant BatchLoader
+participant LabelFiller
+participant TimelineStore
+participant WikidataSource
+participant RequestGate
+participant "Wikidata\n(API, WDQS)" as WD
+User -> Screens : types "Donald Tru"
+Screens -> WikidataSource : searchSubjects (after typing pause)
+WikidataSource -> RequestGate : API request
+RequestGate -> WD : wbsearchentities
+WD --> Screens : suggestions (label, description, Q-ID)
+User -> Screens : picks Q22686
+Screens -> BatchLoader : start(subject, scope)
+BatchLoader -> WikidataSource : fetchBatch(series all, offset 0)
+WikidataSource -> RequestGate : query (60 s abort)
+RequestGate -> WD : SPARQL, LIMIT 5000, no labels
+WD --> BatchLoader : rows (item, property, date)
+BatchLoader -> TimelineStore : addRows (KeyStore skips known keys)
+TimelineStore --> Screens : events changed (Q-IDs shown)
+BatchLoader -> LabelFiller : need labels (visible page first)
+LabelFiller -> RequestGate : wbgetentities, 50 IDs
+RequestGate -> WD
+WD --> LabelFiller : labels and descriptions
+LabelFiller -> TimelineStore : setLabels
+alt batch was full (5,000 rows)
+  BatchLoader -> BatchLoader : wait at least 2 s, then next offset
+else short batch
+  BatchLoader --> Screens : series complete
+end
+@enduml
