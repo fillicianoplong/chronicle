@@ -1,0 +1,87 @@
+/* Chronicle design tokens, version 1.0 (direction A, "Plain record").
+   One source of truth: the app imports this file; the mockups use the same values. */
+:root {
+  color-scheme: light dark;
+  /* color: light */
+  --c-bg: #FFFFFF;
+  --c-surface: #F6F7F9;
+  --c-surface-2: #EDF0F4;
+  --c-border: #D3D9E0;
+  --c-border-strong: #8A94A1;
+  --c-text: #1B1F24;
+  --c-text-muted: #525B66;
+  --c-accent: #1F5FBF;
+  --c-accent-hover: #184C99;
+  --c-on-accent: #FFFFFF;
+  --c-accent-soft: #E8F0FC;
+  --c-selected: #EAF1FB;
+  --c-focus: #1F5FBF;
+  --c-success: #1A7F37;
+  --c-warning: #7A5200;
+  --c-warning-soft: #FFF4D6;
+  --c-danger: #B42318;
+  --c-danger-soft: #FDECEA;
+  --c-info-soft: #E8F0FC;
+  --c-tag: #EDF0F4;
+  --c-overlay: rgba(15, 20, 28, 0.45);
+
+  /* type */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
+  --fs-20: 1.25rem;  --fs-24: 1.5rem;   --fs-32: 2rem;
+  --lh-tight: 1.25;  --lh-body: 1.5;
+  --fw-regular: 400; --fw-medium: 500;  --fw-bold: 650;
+
+  /* spacing (4 px base) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  /* shape and depth */
+  --r-sm: 4px; --r-md: 8px; --r-pill: 999px;
+  --bw: 1px; --focus-ring: 2px; --focus-offset: 2px;
+  --shadow-1: 0 1px 2px rgba(15, 20, 28, 0.08);
+  --shadow-2: 0 6px 20px rgba(15, 20, 28, 0.16);
+
+  /* layout */
+  --header-h: 56px; --filters-w: 280px; --content-max: 1200px; --row-min-h: 64px;
+  --target-min: 24px; /* WCAG 2.2 target size, minimum; touch targets use 44px */
+
+  /* motion */
+  --dur-fast: 120ms; --dur-base: 200ms; --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #14171C;
+    --c-surface: #1B1F26;
+    --c-surface-2: #252A33;
+    --c-border: #3A414C;
+    --c-border-strong: #7D8794;
+    --c-text: #E8EBEF;
+    --c-text-muted: #A9B2BD;
+    --c-accent: #7EB0FF;
+    --c-accent-hover: #A3C6FF;
+    --c-on-accent: #0D1B33;
+    --c-accent-soft: #1D2B45;
+    --c-selected: #1C2A40;
+    --c-focus: #7EB0FF;
+    --c-success: #5CC27D;
+    --c-warning: #F0B44C;
+    --c-warning-soft: #3A2E12;
+    --c-danger: #FF8A80;
+    --c-danger-soft: #3D1D1B;
+    --c-info-soft: #1D2B45;
+    --c-tag: #2B313B;
+    --c-overlay: rgba(0, 0, 0, 0.6);
+    --shadow-1: none;
+    --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; }
+}
+
+@media (forced-colors: active) {
+  :root { --c-focus: Highlight; --c-accent: LinkText; --c-border: CanvasText; }
+}

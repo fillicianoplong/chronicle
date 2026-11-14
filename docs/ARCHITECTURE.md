@@ -309,7 +309,7 @@ Each data rule has one owner and one test. Example data in tests is recorded fro
 | Event key is item ID + date; an event has one or more relationships | TimelineStore | Unit (FR-21) |
 | Dates stay as text; order uses sign, year of any length, month, day | core `dates.ts` | Unit with BCE and five-digit years (NFR-23) |
 | Every event has a precision from `wikibase:timePrecision` (11 day, 10 month, 9 year, lower is coarser); dates show only to that precision | WikidataSource, `dates.ts`, Screens | Unit and the BCE and year-only acceptance test (FR-46) |
-| Negative years follow the query service's date form, where year 0 is 1 BCE, so `-0043` shows as 44 BCE (****UNVERIFIED:**** WDQS RDF format notes on mediawiki.org; pin with the Julius Caesar fixture) | `dates.ts` | Unit (FR-45) |
+| Negative years follow the query service's date form, where year 0 is 1 BCE, so `-0043` shows as 44 BCE (**UNVERIFIED:** WDQS RDF format notes on mediawiki.org; pin with the Julius Caesar fixture) | `dates.ts` | Unit (FR-45) |
 | When several date properties give the same date, the first in the *Date property reference* order wins | TimelineStore | Unit (FR-24) |
 | A missing label is absent, shown as the ID; a missing description is an empty string | LabelFiller, Screens | Unit (FR-17) |
 | Source links are built from the item ID, never stored or imported | Screens | Unit and import test (T-02) |
@@ -467,7 +467,7 @@ Each record follows Michael Nygard's format. All records are accepted; the statu
 | Status | Accepted (Nov 13, 2026) |
 | Context | A 20,000-event timeline is several megabytes. Notes must survive reloads (FR-117). localStorage is small and blocks the page. |
 | Decision | `LocalStore` wraps IndexedDB through the small `idb` library.<br>Store `timelines`: one entry per subject and scope, deleted 24 hours after fetch or on Refresh (FR-88, FR-89).<br>Store `curation`: one entry per subject and event key, no expiry; deleted only by the user (FR-120).<br>When a write fails for quota, the note stays on screen with a warning (NFR-33). |
-| Alternatives | localStorage: about 5 MB and synchronous (****UNVERIFIED:**** per-browser limits on MDN). Cache API: built for HTTP responses, awkward for records. No persistence: loses notes. |
+| Alternatives | localStorage: about 5 MB and synchronous (**UNVERIFIED:** per-browser limits on MDN). Cache API: built for HTTP responses, awkward for records. No persistence: loses notes. |
 | Consequences | Room for large timelines and async writes. Browsers may still evict site data (R-06), so export stays the safe copy. |
 | Revisit when | A browser drops IndexedDB support, or v2 offers saved collections. |
 
@@ -507,7 +507,7 @@ Chronicle has no server and no accounts, so the assets are the user's browser, t
 | T-06 | Notes, tags, or searches leak to a third party (app to network) | Loss of the user's private research | No analytics or cookies; CSP `connect-src` limited to Wikidata hosts; notes never leave except in exported files | E2E network log allows only the endpoint hosts (NFR-25, NFR-26, NFR-28) |
 | T-07 | Someone else using the same browser profile reads saved notes (storage at rest) | Notes disclosed; they are not encrypted | About page says notes stay in this browser unencrypted; Delete saved data for a subject (FR-120) | Inspection; E2E for delete |
 | T-08 | Network attacker changes Wikidata responses in transit | False events shown | HTTPS only; CSP `upgrade-insecure-requests`; GitHub Pages enforced HTTPS | Inspection of CSP and Pages setting |
-| T-09 | The site is framed by another page (clickjacking) | Low: no account or payment actions | Accepted. GitHub Pages cannot send `frame-ancestors`, and the meta CSP ignores it (****UNVERIFIED:**** CSP spec) | None; revisit if a host with headers is used |
+| T-09 | The site is framed by another page (clickjacking) | Low: no account or payment actions | Accepted. GitHub Pages cannot send `frame-ancestors`, and the meta CSP ignores it (**UNVERIFIED:** CSP spec) | None; revisit if a host with headers is used |
 
 The Content Security Policy meta tag will allow scripts and styles only from the site itself, and connections only to `query.wikidata.org` and `www.wikidata.org` (NFR-34).
 
@@ -548,7 +548,7 @@ Branch rules require `ci.yml` to pass before merging (NFR-48). Playwright projec
 
 ## 10. Technology stack
 
-Versions are the latest stable releases at project setup, pinned in `package-lock.json`. ****UNVERIFIED:**** check current versions and licenses on each project's site at setup; vis-timeline's was checked on Nov 13, 2026.
+Versions are the latest stable releases at project setup, pinned in `package-lock.json`. **UNVERIFIED:** check current versions and licenses on each project's site at setup; vis-timeline's was checked on Nov 13, 2026.
 
 | Layer | Technology | Why | License |
 |---|---|---|---|
@@ -574,7 +574,7 @@ Owner for every risk: Filliciano Plong. Likelihood and impact are judgments, not
 | R-03 | Wikidata edits between Stop and a later Resume shift OFFSET positions, so a resumed series can skip rows. | Medium | Low | Overlap one batch when resuming stored timelines (OD-21); Refresh for a full reload (FR-97). |
 | R-04 | Fetching precision through the statement path adds time: 1 to 11 s per batch in S-01. Donald Trump's single batch took 12.8 s cold, above the 10 s first-page target (NFR-03). | Medium | Low | Show each batch as soon as it arrives; 24-hour cache; recheck timings in the weekly contract job; revisit the NFR-03 target with real measurements. |
 | R-05 | Filtering 20,000 events on a mid-range phone misses 200 ms. | Medium | Medium | Precomputed search text; memoized results; a Web Worker if S-02 says so. |
-| R-06 | Browsers evict site storage; Safari may clear it after 7 days without a visit (****UNVERIFIED:**** WebKit storage policy). | Medium | High | Ask for persistent storage (OD-24); remind users to export; About page explains it. |
+| R-06 | Browsers evict site storage; Safari may clear it after 7 days without a visit (**UNVERIFIED:** WebKit storage policy). | Medium | High | Ask for persistent storage (OD-24); remind users to export; About page explains it. |
 | R-07 | Scholarly articles are in a separate WDQS graph, so papers about a subject are missing (OD-19). | High | Low | Say so on the About page; v2 may add the second endpoint. |
 | R-08 | The visual timeline library breaks the 300 KB JavaScript budget (NFR-08). | Medium | Low | Load it as a separate chunk only when the user opens that view (OD-23). |
 | R-09 | The generic place link list (P17, P27) is incomplete, so users wait 60 s on other huge relationships. | Medium | Low | Mark any relationship that times out (FR-42); add to the list from contract runs. |
