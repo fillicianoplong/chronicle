@@ -1,0 +1,99 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  background: #f6f4f1;
+  color: #1d1a16;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.page {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1.25rem 4rem;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.subject-search {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 2rem;
+}
+
+.subject-search label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.subject-search-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.subject-search input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+  border: 1px solid #6f685f;
+  border-radius: 0.375rem;
+  padding: 0.6rem 0.75rem;
+}
+
+.subject-search input::placeholder {
+  color: #5c564e;
+  opacity: 1;
+}
+
+.subject-search input:focus-visible,
+.subject-search button:focus-visible {
+  outline: 2px solid #1d1a16;
+  outline-offset: 2px;
+}
+
+.subject-search button {
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: #0f3d6b;
+  border: 1px solid #0f3d6b;
+  border-radius: 0.375rem;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+}
+
+.subject-search button:hover {
+  background: #0c3258;
+}
+
+.empty-state {
+  margin: 1.5rem 0 0;
+  padding: 1rem 1.1rem;
+  border: 1px dashed #6f685f;
+  border-radius: 0.375rem;
+  color: #3f3a34;
+  background: #fffdfb;
+}
+
+@media (max-width: 32rem) {
+  .subject-search-row {
+    flex-direction: column;
+  }
+}
