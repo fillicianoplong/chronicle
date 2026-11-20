@@ -1,3 +1,6 @@
+/* Component styles for the earlier mockups. New Plakat screens use tokens.css
+   and the sources in mockups/ui-plakat-*.html. Rebuild this file with the Plakat shell. */
+
 /* Mockup component styles. Values come only from tokens.css. */
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--c-bg); color: var(--c-text); font: var(--fw-regular) var(--fs-16)/var(--lh-body) Inter, var(--font-sans); }

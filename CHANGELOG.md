@@ -18,5 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Planning is tracked in Jira. Code and docs land in one commit on `main`.
+- Locked in the Plakat visual design, with a list view and a timeline view. The UI design document is now version 1.3.
 
 [Unreleased]: https://github.com/fillicianoplong/chronicle/commits/main

@@ -1,49 +1,56 @@
-/* Chronicle design tokens, version 1.0 (direction A, "Plain record").
-   One source of truth: the app imports this file; the mockups use the same values. */
+/* Chronicle design tokens, version 1.3 (Plakat).
+   One source of truth: the app imports this file; the mockups use the same values.
+   In dark mode, text on the signal red (--c-accent, #FF5A45) must use --c-on-accent
+   (#0A0A0A). White on that red is only 3.1:1 and fails WCAG AA. */
 :root {
   color-scheme: light dark;
   /* color: light */
-  --c-bg: #FFFFFF;
-  --c-surface: #F6F7F9;
-  --c-surface-2: #EDF0F4;
-  --c-border: #D3D9E0;
-  --c-border-strong: #8A94A1;
-  --c-text: #1B1F24;
-  --c-text-muted: #525B66;
-  --c-accent: #1F5FBF;
-  --c-accent-hover: #184C99;
+  --c-bg: #FAFAF8;
+  --c-surface: #FAFAF8;
+  --c-surface-2: #F0F0EC;
+  --c-border: #767672;
+  --c-border-strong: #111111;
+  --c-text: #111111;
+  --c-text-muted: #4A4A46;
+  --c-accent: #C40000;
+  --c-accent-hover: #9B0000;
   --c-on-accent: #FFFFFF;
-  --c-accent-soft: #E8F0FC;
-  --c-selected: #EAF1FB;
-  --c-focus: #1F5FBF;
+  --c-accent-soft: #F8E8E6;
+  --c-selected: #F3EDED;
+  --c-focus: #111111;
   --c-success: #1A7F37;
   --c-warning: #7A5200;
   --c-warning-soft: #FFF4D6;
-  --c-danger: #B42318;
-  --c-danger-soft: #FDECEA;
-  --c-info-soft: #E8F0FC;
-  --c-tag: #EDF0F4;
-  --c-overlay: rgba(15, 20, 28, 0.45);
+  --c-danger: #C40000;
+  --c-danger-soft: #F8E4E0;
+  --c-info-soft: #F8E8E6;
+  --c-tag: #F0F0EC;
+  --c-overlay: rgba(17, 17, 17, 0.45);
 
   /* type */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-sans: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "Space Mono", ui-monospace, monospace;
   --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
   --fs-20: 1.25rem;  --fs-24: 1.5rem;   --fs-32: 2rem;
-  --lh-tight: 1.25;  --lh-body: 1.5;
-  --fw-regular: 400; --fw-medium: 500;  --fw-bold: 650;
+  --fs-44: 2.75rem;  --fs-56: 3.5rem;   --fs-88: 5.5rem;
+  --lh-tight: 0.95;  --lh-body: 1.35;
+  --fw-regular: 400; --fw-medium: 500;  --fw-bold: 700;
 
   /* spacing (4 px base) */
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+  --page-pad: 56px;
+  --page-pad-sm: 18px;
+  --top-rule: 8px;
 
-  /* shape and depth */
-  --r-sm: 4px; --r-md: 8px; --r-pill: 999px;
-  --bw: 1px; --focus-ring: 2px; --focus-offset: 2px;
-  --shadow-1: 0 1px 2px rgba(15, 20, 28, 0.08);
-  --shadow-2: 0 6px 20px rgba(15, 20, 28, 0.16);
+  /* shape and depth: sharp corners, hard rules, no elevation */
+  --r-sm: 0px; --r-md: 0px; --r-pill: 0px;
+  --bw: 1px; --bw-strong: 2px;
+  --focus-ring: 2px; --focus-offset: 2px;
+  --shadow-1: none;
+  --shadow-2: none;
 
   /* layout */
-  --header-h: 56px; --filters-w: 280px; --content-max: 1200px; --row-min-h: 64px;
+  --header-h: auto; --filters-w: auto; --content-max: none; --row-min-h: 34px;
   --target-min: 24px; /* WCAG 2.2 target size, minimum; touch targets use 44px */
 
   /* motion */
@@ -52,29 +59,29 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --c-bg: #14171C;
-    --c-surface: #1B1F26;
-    --c-surface-2: #252A33;
-    --c-border: #3A414C;
-    --c-border-strong: #7D8794;
-    --c-text: #E8EBEF;
-    --c-text-muted: #A9B2BD;
-    --c-accent: #7EB0FF;
-    --c-accent-hover: #A3C6FF;
-    --c-on-accent: #0D1B33;
-    --c-accent-soft: #1D2B45;
-    --c-selected: #1C2A40;
-    --c-focus: #7EB0FF;
+    --c-bg: #0A0A0A;
+    --c-surface: #0A0A0A;
+    --c-surface-2: #161616;
+    --c-border: #A3A3A0;
+    --c-border-strong: #F2F2F2;
+    --c-text: #F2F2F2;
+    --c-text-muted: #A3A3A0;
+    --c-accent: #FF5A45;
+    --c-accent-hover: #FF7A68;
+    --c-on-accent: #0A0A0A; /* never white on #FF5A45 (3.1:1, fail) */
+    --c-accent-soft: #1A1210;
+    --c-selected: #1A1210;
+    --c-focus: #F2F2F2;
     --c-success: #5CC27D;
     --c-warning: #F0B44C;
     --c-warning-soft: #3A2E12;
-    --c-danger: #FF8A80;
-    --c-danger-soft: #3D1D1B;
-    --c-info-soft: #1D2B45;
-    --c-tag: #2B313B;
+    --c-danger: #FF5A45;
+    --c-danger-soft: #3A1614;
+    --c-info-soft: #1A1210;
+    --c-tag: #161616;
     --c-overlay: rgba(0, 0, 0, 0.6);
     --shadow-1: none;
-    --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.5);
+    --shadow-2: none;
   }
 }
 
