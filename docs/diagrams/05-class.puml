@@ -1,0 +1,61 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+hide empty methods
+class Subject {
+  id: QId
+  label: string
+  description: string
+}
+class Scope {
+  relationships: PId[]
+  from?: DateText
+  to?: DateText
+}
+class Series {
+  id: "all" | PId
+  nextOffset: int
+  complete: boolean
+  tooLarge: boolean
+}
+class Row <<transient>> {
+  key: RowKey  (item|prop|date)
+  itemId: QId
+  propertyId: PId
+  date: DateText
+  dateProperty: PId
+}
+class Event {
+  key: EventKey  (item|date)
+  itemId: QId
+  label?: string
+  description?: string
+  date: DateText
+  precision: Precision
+  dateProperty: PId
+  relationships: PId[] (1..*)
+}
+class CurationEntry {
+  subjectId: QId
+  eventKey: EventKey
+  selected: boolean
+  note?: string (<= 2,000)
+  tags: string[] (each <= 40)
+}
+class Timeline {
+  fetchedAt: Instant
+}
+Timeline "1" *-- "1" Subject
+Timeline "1" *-- "1" Scope
+Timeline "1" *-- "1..*" Series
+Timeline "1" *-- "0..*" Event
+Row "1..*" ..> "1" Event : merged into >
+Event "1" -- "0..1" CurationEntry : by subjectId + eventKey
+@enduml

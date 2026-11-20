@@ -1,0 +1,32 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+node "User's browser" {
+  artifact "Chronicle app\n(React + TypeScript bundle)" as App
+  database "IndexedDB\ncache (24 h) and curation" as IDB
+  file "Export file (.json)\non the user's disk" as File
+}
+node "GitHub Pages\nfillicianoplong.github.io/chronicle/" as Pages {
+  artifact "index.html, about/,\nJS and CSS assets" as Static
+}
+cloud "Wikidata" {
+  node "WDQS\n/sparql" as WDQS
+  node "Wikidata API\n/w/api.php" as API
+}
+Static --> App : HTTPS GET\n(first visit)
+App --> WDQS : HTTPS GET, CORS\none query at a time
+App --> API : HTTPS GET, origin=*\none label request at a time
+App --> IDB : read and write
+App --> File : download / file picker
+note right of App
+  Content Security Policy (meta tag):
+  connect-src only the two Wikidata hosts.
+end note
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+[*] --> Idle
+Idle --> Loading : start / resume
+Loading --> Waiting : full batch received
+Waiting --> Loading : 2 s spacing passed
+Loading --> Complete : short batch (last)
+Loading --> Stopped : Stop (request aborted)
+Waiting --> Stopped : Stop
+Stopped --> Loading : Resume
+Loading --> Backoff : 429, 5xx, network
+Backoff --> Loading : delay or Retry-After passed\n(at most 2 retries)
+Backoff --> Paused : retries used up
+Loading --> Paused : later batch timeout
+Loading --> TooBroad : first batch timeout,\nor 502/504 after retries
+Paused --> Loading : Retry
+TooBroad --> Loading : Try again or\nrelationship chosen
+Complete --> [*]
+@enduml

@@ -1,0 +1,639 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ui-05-timeline-list</title>
+<style>/* Chronicle design tokens, version 1.0 (direction A, "Plain record").
+   One source of truth: the app imports this file; the mockups use the same values. */
+:root {
+  color-scheme: light dark;
+  /* color: light */
+  --c-bg: #FFFFFF;
+  --c-surface: #F6F7F9;
+  --c-surface-2: #EDF0F4;
+  --c-border: #D3D9E0;
+  --c-border-strong: #8A94A1;
+  --c-text: #1B1F24;
+  --c-text-muted: #525B66;
+  --c-accent: #1F5FBF;
+  --c-accent-hover: #184C99;
+  --c-on-accent: #FFFFFF;
+  --c-accent-soft: #E8F0FC;
+  --c-selected: #EAF1FB;
+  --c-focus: #1F5FBF;
+  --c-success: #1A7F37;
+  --c-warning: #7A5200;
+  --c-warning-soft: #FFF4D6;
+  --c-danger: #B42318;
+  --c-danger-soft: #FDECEA;
+  --c-info-soft: #E8F0FC;
+  --c-tag: #EDF0F4;
+  --c-overlay: rgba(15, 20, 28, 0.45);
+
+  /* type */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --fs-12: 0.75rem;  --fs-14: 0.875rem; --fs-16: 1rem;
+  --fs-20: 1.25rem;  --fs-24: 1.5rem;   --fs-32: 2rem;
+  --lh-tight: 1.25;  --lh-body: 1.5;
+  --fw-regular: 400; --fw-medium: 500;  --fw-bold: 650;
+
+  /* spacing (4 px base) */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px; --sp-8: 32px; --sp-12: 48px;
+
+  /* shape and depth */
+  --r-sm: 4px; --r-md: 8px; --r-pill: 999px;
+  --bw: 1px; --focus-ring: 2px; --focus-offset: 2px;
+  --shadow-1: 0 1px 2px rgba(15, 20, 28, 0.08);
+  --shadow-2: 0 6px 20px rgba(15, 20, 28, 0.16);
+
+  /* layout */
+  --header-h: 56px; --filters-w: 280px; --content-max: 1200px; --row-min-h: 64px;
+  --target-min: 24px; /* WCAG 2.2 target size, minimum; touch targets use 44px */
+
+  /* motion */
+  --dur-fast: 120ms; --dur-base: 200ms; --ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --c-bg: #14171C;
+    --c-surface: #1B1F26;
+    --c-surface-2: #252A33;
+    --c-border: #3A414C;
+    --c-border-strong: #7D8794;
+    --c-text: #E8EBEF;
+    --c-text-muted: #A9B2BD;
+    --c-accent: #7EB0FF;
+    --c-accent-hover: #A3C6FF;
+    --c-on-accent: #0D1B33;
+    --c-accent-soft: #1D2B45;
+    --c-selected: #1C2A40;
+    --c-focus: #7EB0FF;
+    --c-success: #5CC27D;
+    --c-warning: #F0B44C;
+    --c-warning-soft: #3A2E12;
+    --c-danger: #FF8A80;
+    --c-danger-soft: #3D1D1B;
+    --c-info-soft: #1D2B45;
+    --c-tag: #2B313B;
+    --c-overlay: rgba(0, 0, 0, 0.6);
+    --shadow-1: none;
+    --shadow-2: 0 6px 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 0ms; }
+}
+
+@media (forced-colors: active) {
+  :root { --c-focus: Highlight; --c-accent: LinkText; --c-border: CanvasText; }
+}
+
+/* Mockup component styles. Values come only from tokens.css. */
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--c-bg); color: var(--c-text); font: var(--fw-regular) var(--fs-16)/var(--lh-body) Inter, var(--font-sans); }
+body { font-feature-settings: "tnum" 0; }
+.ic { width: 20px; height: 20px; flex: none; vertical-align: -4px; }
+.ic.s { width: 16px; height: 16px; vertical-align: -3px; }
+a { color: var(--c-accent); text-decoration: underline; text-underline-offset: 2px; }
+.muted { color: var(--c-text-muted); }
+.small { font-size: var(--fs-14); }
+.xs { font-size: var(--fs-12); }
+.num { font-variant-numeric: tabular-nums; }
+.mono { font-family: "JetBrains Mono", var(--font-mono); font-size: var(--fs-14); }
+/* browser frame (mockup only) */
+.frame { border: var(--bw) solid var(--c-border); border-radius: var(--r-md); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+.chrome { height: 40px; background: var(--c-surface-2); display: flex; align-items: center; gap: var(--sp-3); padding: 0 var(--sp-3); border-bottom: var(--bw) solid var(--c-border); flex: none; }
+.dots { display: flex; gap: 6px; } .dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--c-border-strong); opacity: .6; }
+.url { flex: 1; height: 26px; border-radius: var(--r-pill); background: var(--c-bg); border: var(--bw) solid var(--c-border); font-size: var(--fs-12); display: flex; align-items: center; padding: 0 var(--sp-3); color: var(--c-text-muted); font-family: "JetBrains Mono", var(--font-mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: block; line-height: 24px; }
+.url b { color: var(--c-text); font-weight: var(--fw-medium); }
+.page { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+/* header */
+.hdr { height: var(--header-h); display: flex; align-items: center; gap: var(--sp-4); padding: 0 var(--sp-6); border-bottom: var(--bw) solid var(--c-border); flex: none; }
+.brand { font-weight: var(--fw-bold); font-size: var(--fs-20); letter-spacing: -0.01em; color: var(--c-text); text-decoration: none; display: flex; align-items: center; gap: var(--sp-2); }
+.brand .mark { width: 22px; height: 22px; border-radius: var(--r-sm); background: var(--c-accent); position: relative; }
+.brand .mark::before, .brand .mark::after { content: ""; position: absolute; left: 5px; right: 5px; height: 2px; background: var(--c-on-accent); }
+.brand .mark::before { top: 7px; } .brand .mark::after { top: 13px; right: 9px; }
+.grow { flex: 1; }
+/* inputs and buttons */
+.input { height: 40px; border: var(--bw) solid var(--c-border-strong); border-radius: var(--r-sm); background: var(--c-bg); display: flex; align-items: center; gap: var(--sp-2); padding: 0 var(--sp-3); color: var(--c-text); font-size: var(--fs-16); }
+.input.lg { height: 52px; font-size: var(--fs-20); padding: 0 var(--sp-4); }
+.input.focus { outline: var(--focus-ring) solid var(--c-focus); outline-offset: var(--focus-offset); }
+.input .ph { color: var(--c-text-muted); }
+.caret { display: inline-block; width: 1.5px; height: 1.1em; background: var(--c-text); vertical-align: -3px; margin-left: 1px; }
+.btn { height: 36px; display: inline-flex; align-items: center; gap: var(--sp-2); padding: 0 var(--sp-4); border-radius: var(--r-sm); border: var(--bw) solid var(--c-border-strong); background: var(--c-bg); color: var(--c-text); font: var(--fw-medium) var(--fs-14)/1 Inter, var(--font-sans); white-space: nowrap; }
+.btn.primary { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-on-accent); }
+.btn.ghost { border-color: transparent; background: transparent; }
+.btn.danger { color: var(--c-danger); }
+.btn.sm { height: 28px; padding: 0 var(--sp-3); }
+.btn.icon { width: 36px; padding: 0; justify-content: center; }
+.btn.focus { outline: var(--focus-ring) solid var(--c-focus); outline-offset: var(--focus-offset); }
+.btn[disabled] { opacity: .55; }
+.chk { width: 18px; height: 18px; border: 1.5px solid var(--c-border-strong); border-radius: 3px; background: var(--c-bg); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.chk.on { background: var(--c-accent); border-color: var(--c-accent); }
+.chk.on::after { content: ""; width: 9px; height: 5px; border-left: 2px solid var(--c-on-accent); border-bottom: 2px solid var(--c-on-accent); transform: rotate(-45deg) translate(1px, -1px); }
+.chk.mixed { background: var(--c-accent); border-color: var(--c-accent); }
+.chk.mixed::after { content: ""; width: 9px; height: 2px; background: var(--c-on-accent); }
+.chip { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 var(--sp-2); border-radius: var(--r-pill); background: var(--c-tag); font-size: var(--fs-12); color: var(--c-text); white-space: nowrap; }
+.chip.rel { background: transparent; border: var(--bw) solid var(--c-border); color: var(--c-text-muted); }
+.chip.tag::before { content: "#"; color: var(--c-text-muted); }
+.badge { display: inline-flex; align-items: center; height: 20px; padding: 0 6px; border-radius: var(--r-sm); font-size: var(--fs-12); font-weight: var(--fw-medium); border: var(--bw) solid var(--c-border-strong); color: var(--c-text-muted); }
+/* menus, dialogs */
+.menu { position: absolute; background: var(--c-bg); border: var(--bw) solid var(--c-border); border-radius: var(--r-md); box-shadow: var(--shadow-2); padding: var(--sp-1) 0; z-index: 5; }
+.mi { padding: var(--sp-2) var(--sp-4); display: flex; gap: var(--sp-3); align-items: flex-start; font-size: var(--fs-14); }
+.mi.active { background: var(--c-accent-soft); }
+.mi .t { font-weight: var(--fw-medium); }
+.sep { height: 1px; background: var(--c-border); margin: var(--sp-1) 0; }
+.overlay { position: absolute; inset: 0; background: var(--c-overlay); z-index: 8; }
+.dialog { position: absolute; z-index: 9; background: var(--c-bg); border-radius: var(--r-md); box-shadow: var(--shadow-2); border: var(--bw) solid var(--c-border); padding: var(--sp-6); }
+.dialog h2 { margin: 0 0 var(--sp-3); font-size: var(--fs-20); line-height: var(--lh-tight); }
+.drawer { position: absolute; z-index: 9; top: 0; right: 0; bottom: 0; width: 400px; background: var(--c-bg); border-left: var(--bw) solid var(--c-border); box-shadow: var(--shadow-2); padding: var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-4); }
+/* banners */
+.banner { display: flex; gap: var(--sp-3); align-items: flex-start; padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); border: var(--bw) solid; font-size: var(--fs-14); }
+.banner.info { background: var(--c-info-soft); border-color: var(--c-accent); }
+.banner.warn { background: var(--c-warning-soft); border-color: var(--c-warning); }
+.banner.warn .ic { color: var(--c-warning); }
+.banner.err { background: var(--c-danger-soft); border-color: var(--c-danger); }
+.banner.err .ic { color: var(--c-danger); }
+.banner .b { flex: 1; }
+.banner .b strong { display: block; }
+/* timeline layout */
+.subj { padding: var(--sp-4) var(--sp-6) var(--sp-3); border-bottom: var(--bw) solid var(--c-border); flex: none; }
+.subj h1 { margin: 0; font-size: var(--fs-24); line-height: var(--lh-tight); display: flex; align-items: baseline; gap: var(--sp-3); }
+.subj h1 .q { font-size: var(--fs-14); font-weight: var(--fw-regular); }
+.subj p { margin: 2px 0 0; }
+.loadbar { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-2) var(--sp-6); background: var(--c-surface); border-bottom: var(--bw) solid var(--c-border); font-size: var(--fs-14); flex: none; }
+.track { width: 160px; height: 6px; border-radius: var(--r-pill); background: var(--c-surface-2); overflow: hidden; position: relative; }
+.track i { position: absolute; top: 0; bottom: 0; left: 30%; width: 35%; background: var(--c-accent); border-radius: var(--r-pill); }
+.body { flex: 1; display: flex; min-height: 0; }
+.filters { width: var(--filters-w); flex: none; border-right: var(--bw) solid var(--c-border); padding: var(--sp-4) var(--sp-6) var(--sp-4) var(--sp-6); display: flex; flex-direction: column; gap: var(--sp-4); background: var(--c-surface); overflow: hidden; }
+.filters h3, .fl { margin: 0; font-size: var(--fs-12); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: .04em; color: var(--c-text-muted); }
+.filters .input { height: 36px; font-size: var(--fs-14); }
+.opt { display: flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-14); }
+.opt .n { margin-left: auto; color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
+.seg { display: flex; border: var(--bw) solid var(--c-border-strong); border-radius: var(--r-sm); overflow: hidden; }
+.seg span { flex: 1; text-align: center; font-size: var(--fs-14); padding: 6px 0; }
+.seg span.on { background: var(--c-accent); color: var(--c-on-accent); font-weight: var(--fw-medium); }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.toolbar { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-6); border-bottom: var(--bw) solid var(--c-border); font-size: var(--fs-14); flex: none; }
+.tabs { display: flex; gap: var(--sp-1); }
+.tab { height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 var(--sp-3); border-radius: var(--r-sm); font-size: var(--fs-14); font-weight: var(--fw-medium); color: var(--c-text-muted); }
+.tab.on { background: var(--c-accent-soft); color: var(--c-accent); box-shadow: inset 0 -2px 0 var(--c-accent); }
+.list { flex: 1; overflow: hidden; }
+.row { display: grid; grid-template-columns: 18px 128px 1fr auto; gap: var(--sp-4); padding: var(--sp-3) var(--sp-6); border-bottom: var(--bw) solid var(--c-border); align-items: start; min-height: var(--row-min-h); }
+.row.sel { background: var(--c-selected); box-shadow: inset 3px 0 0 var(--c-accent); }
+.row .date { font-variant-numeric: tabular-nums; font-weight: var(--fw-medium); font-size: var(--fs-14); padding-top: 1px; }
+.row .date .p { display: block; font-weight: var(--fw-regular); font-size: var(--fs-12); color: var(--c-text-muted); }
+.row .lbl { font-weight: var(--fw-medium); color: var(--c-text); }
+.row .lbl.id { font-family: "JetBrains Mono", var(--font-mono); font-size: var(--fs-14); color: var(--c-text-muted); font-weight: var(--fw-regular); }
+.row .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; align-items: center; }
+.row .desc { font-size: var(--fs-14); color: var(--c-text-muted); }
+.row .note { font-size: var(--fs-14); margin-top: 6px; padding-left: var(--sp-3); border-left: 2px solid var(--c-border-strong); color: var(--c-text); }
+.row .acts { display: flex; gap: 2px; color: var(--c-text-muted); }
+.row .chk { margin-top: 2px; }
+.skel { display: inline-block; height: 10px; border-radius: var(--r-sm); background: var(--c-surface-2); }
+.pager { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-6); border-top: var(--bw) solid var(--c-border); font-size: var(--fs-14); flex: none; }
+.selbar { white-space: nowrap; position: absolute; left: 50%; transform: translateX(-50%); bottom: var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4); background: var(--c-text); color: var(--c-bg); border-radius: var(--r-md); box-shadow: var(--shadow-2); font-size: var(--fs-14); z-index: 4; }
+.selbar .btn { background: transparent; color: var(--c-bg); border-color: transparent; }
+.selbar .btn.primary { background: var(--c-bg); color: var(--c-text); }
+.footer { padding: var(--sp-2) var(--sp-6); font-size: var(--fs-12); color: var(--c-text-muted); border-top: var(--bw) solid var(--c-border); flex: none; display: flex; gap: var(--sp-4); }
+.empty { margin: var(--sp-12) auto; max-width: 460px; text-align: center; }
+.empty .ic { width: 32px; height: 32px; color: var(--c-text-muted); }
+.empty h2 { font-size: var(--fs-20); margin: var(--sp-3) 0 var(--sp-2); }
+/* callouts (mockup only) */
+.rel { position: relative; }
+.co { position: absolute; z-index: 20; width: 22px; height: 22px; border-radius: 50%; background: #C2185B; color: #fff; font: 700 12px/22px Inter, sans-serif; text-align: center; box-shadow: 0 0 0 2px #fff; }
+
+</style></head><body><div class="frame"><div class="chrome"><div class="dots"><i></i><i></i><i></i></div>
+<div class="url">https://fillicianoplong.github.io/chronicle/<b>?q=Q7186&amp;text=radium&amp;rel=P921,P50&amp;from=1890&amp;page=3</b></div></div><div class="page"><header class="hdr rel"><a class="brand"><span class="mark"></span>Chronicle</a>
+<div class="input rel" style="width:420px"><b class="co" style="top:-10px;left:-10px">1</b>
+<svg
+  aria-hidden="true" class="ic s lucide lucide-search"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" />
+</svg>
+<span>Marie Curie</span></div>
+<span class="grow"></span>
+<span class="rel"><b class="co" style="top:-10px;left:-10px">2</b><span class="btn">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-file-json"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+  <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+  <path d="M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1" />
+  <path d="M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1" />
+</svg>
+File</span></span>
+<a class="small">About</a></header><section class="subj rel"><b class="co" style="top:8px;left:4px">3</b><h1>Marie Curie <span class="q muted mono">Q7186</span></h1>
+<p class="muted small">Polish and naturalised-French physicist and chemist · <a>Wikidata ↗</a></p></section><div class="loadbar rel"><b class="co" style="top:6px;left:8px">4</b>
+<svg
+  aria-hidden="true" class="ic s lucide lucide-clock"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <circle cx="12" cy="12" r="10" />
+  <path d="M12 6v6l4 2" />
+</svg>
+<span class="muted">Loaded 1,214 events in 1 batch · fetched today 10:42 ·</span><a>Refresh</a></div><div class="body"><aside class="filters rel"><b class="co" style="top:6px;left:6px">5</b>
+<div><p class="fl">Text</p><div class="input" style="margin-top:6px">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-search"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m21 21-4.34-4.34" />
+  <circle cx="11" cy="11" r="8" />
+</svg>
+<span>radium</span></div></div>
+<div><p class="fl">Relationship</p>
+<div style="margin-top:6px;display:flex;flex-direction:column;gap:6px">
+<label class="opt"><span class="chk on"></span>main subject<span class="n">412</span></label>
+<label class="opt"><span class="chk on"></span>author<span class="n">96</span></label>
+<label class="opt"><span class="chk"></span>named after<span class="n">58</span></label>
+<label class="opt"><span class="chk"></span>notable work<span class="n">12</span></label>
+<a class="small">Show all 14</a></div></div>
+<div><p class="fl">Dates</p><div style="display:flex;gap:8px;margin-top:6px"><div class="input" style="width:50%"><span>1890</span></div><div class="input" style="width:50%"><span class="ph">To</span></div></div>
+<p class="xs muted" style="margin:4px 0 0">A year, or a full date such as 1903-12-10</p></div>
+<div><p class="fl">Tags</p><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><span class="chip tag">thesis</span><span class="chip tag">awards</span></div></div>
+<div><p class="fl">Sort</p><div class="seg" style="margin-top:6px"><span class="on">Oldest first</span><span>Newest first</span></div></div>
+<a class="small">Clear all filters</a></aside><div class="main rel"><div class="toolbar rel"><b class="co" style="top:-2px;left:4px">6</b><div class="tabs"><span class="tab on">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-list"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 5h.01" />
+  <path d="M3 12h.01" />
+  <path d="M3 19h.01" />
+  <path d="M8 5h13" />
+  <path d="M8 12h13" />
+  <path d="M8 19h13" />
+</svg>
+List</span><span class="tab">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-chart-gantt"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M10 6h8" />
+  <path d="M12 16h6" />
+  <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+  <path d="M8 11h7" />
+</svg>
+Visual timeline</span></div>
+<span class="grow"></span><span class="muted num rel">508 of 1,214 events match · 3 selected</span>
+<label class="opt rel"><span class="chk mixed"></span>Select page</label>
+<span class="btn sm">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-link"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+</svg>
+Copy link</span></div><div class="list"><div class="row rel sel"><b class="co" style="top:4px;left:2px">7</b><span class="chk on"></span>
+<div class="date">1898<span class="p">year · publication date</span></div>
+<div><span class="lbl">Sur une nouvelle substance fortement radio-active</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">scholarly article (example)</p><div class="meta"><span class="chip rel">author</span><span class="chip tag">discovery</span></div></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div><div class="row rel sel"><span class="chk on"></span>
+<div class="date">1903<span class="p">year · publication date</span></div>
+<div><span class="lbl">Recherches sur les substances radioactives</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">doctoral thesis (example)</p><div class="meta"><span class="chip rel">author</span><span class="chip tag">thesis</span></div><p class="note">Compare with the English translation of 1904.</p></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div><div class="row rel"><span class="chk"></span>
+<div class="date">10 Dec 1903<span class="p">day · point in time</span></div>
+<div><span class="lbl">1903 Nobel Prize in Physics</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">award ceremony (example)</p><div class="meta"><span class="chip rel">main subject</span><span class="chip rel">participant</span><span class="chip tag">awards</span></div></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div><div class="row rel"><span class="chk"></span>
+<div class="date">1910s<span class="p">decade · inception</span></div>
+<div><span class="lbl">Radium Institute building</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">building (example)</p><div class="meta"><span class="chip rel">named after</span></div></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div><div class="row rel sel"><span class="chk on"></span>
+<div class="date">Dec 1911<span class="p">month · point in time</span></div>
+<div><span class="lbl">1911 Nobel Prize in Chemistry</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">award ceremony (example)</p><div class="meta"><span class="chip rel">main subject</span><span class="chip tag">awards</span></div></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div><div class="row rel"><span class="chk"></span>
+<div class="date">1943<span class="p">year · publication date</span></div>
+<div><span class="lbl">Madame Curie</span> <a class="xs">Wikidata ↗</a><p class="desc" style="margin:2px 0 0">film (example)</p><div class="meta"><span class="chip rel">main subject</span></div></div>
+<div class="acts"><span class="btn ghost icon sm" title="Note">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-sticky-note"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+  <path d="M15 3v5a1 1 0 0 0 1 1h5" />
+</svg>
+</span><span class="btn ghost icon sm" title="Tags">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-tag"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+  <circle cx="7.5" cy="7.5" r=".5" fill="currentColor" />
+</svg>
+</span></div></div></div><nav class="pager rel" aria-label="Pages"><b class="co" style="top:-6px;left:4px">9</b><span class="btn sm icon">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-chevrons-left"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m11 17-5-5 5-5" />
+  <path d="m18 17-5-5 5-5" />
+</svg>
+</span><span class="btn sm icon">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-chevron-left"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m15 18-6-6 6-6" />
+</svg>
+</span>
+<span class="num">Page <b>3</b> of 11</span><span class="btn sm icon">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-chevron-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m9 18 6-6-6-6" />
+</svg>
+</span><span class="btn sm icon">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-chevrons-right"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="m6 17 5-5-5-5" />
+  <path d="m13 17 5-5-5-5" />
+</svg>
+</span>
+<span class="grow"></span><span class="muted xs">50 events per page</span></nav></div></div><footer class="footer"><span>Data from Wikidata, CC0. Every event links to its source.</span><span class="grow"></span><span>Example data</span></footer><div style="position:absolute;left:0;right:0;bottom:64px;height:0" class="rel"><div class="selbar"><b class="co" style="top:-12px;left:-12px">8</b><span class="num"><b>3</b> selected</span><span class="btn sm">Select all 508 filtered</span>
+<span class="btn sm">Clear</span><span class="btn sm">Selected only</span><span class="btn primary sm">
+<svg
+  aria-hidden="true" class="ic s lucide lucide-download"
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 15V3" />
+  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+  <path d="m7 10 5 5 5-5" />
+</svg>
+Export selected</span></div></div></div></div></body></html>

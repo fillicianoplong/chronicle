@@ -1,0 +1,39 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam dpi 140
+skinparam ArrowColor #1F2A44
+skinparam componentBorderColor #1F2A44
+skinparam rectangleBorderColor #1F2A44
+skinparam packageBorderColor #8090A8
+left to right direction
+actor "Visitor or\nResearcher" as U
+rectangle "Chronicle (browser)" {
+  usecase "UC-01 Find a subject's timeline" as UC1
+  usecase "UC-02 Choose between\nsimilar names" as UC2
+  usecase "UC-03 Narrow with filters" as UC3
+  usecase "UC-04 Share a view by link" as UC4
+  usecase "UC-05 Load and page through\na large timeline" as UC5
+  usecase "UC-06 Explore a too-broad subject" as UC6
+  usecase "UC-07 Save to a file\nand resume later" as UC7
+  usecase "UC-08 Build a curated\nresearch file" as UC8
+  usecase "UC-09 Visual timeline (Should)" as UC9
+  usecase "UC-10 Recover from a slow\nor failed query" as UC10
+}
+actor "Wikidata\n(WDQS and API)" as W
+U --> UC1
+U --> UC3
+U --> UC4
+U --> UC7
+U --> UC8
+U --> UC9
+UC1 ..> UC2 : <<include>>
+UC5 ..> UC1 : <<extend>>
+UC6 ..> UC1 : <<extend>>
+UC10 ..> UC5 : <<extend>>
+UC1 --> W
+UC6 --> W
+UC7 --> W
+@enduml

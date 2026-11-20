@@ -48,6 +48,16 @@ npm run test:coverage
 
 Early development.
 
+## Documentation
+
+- [Software Requirements Specification](docs/SRS.md) (version 1.5; also as [Word](docs/Plong_Chronicle_SRS.docx) and [PDF](docs/out/Plong_Chronicle_SRS.pdf))
+- [Architecture](docs/ARCHITECTURE.md) (version 1.2; also as [Word](docs/Plong_Chronicle_Architecture.docx) and [PDF](docs/out/Plong_Chronicle_Architecture.pdf))
+- [UI design](docs/UI_DESIGN.md) (version 1.2; also as [Word](docs/Plong_Chronicle_UI_Design.docx) and [PDF](docs/out/Plong_Chronicle_UI_Design.pdf)), with design tokens and mockup sources in [docs/ui](docs/ui/)
+- [Implementation plan](docs/IMPLEMENTATION_PLAN.md) (version 1.1; also as [Word](docs/Plong_Chronicle_Implementation_Plan.docx) and [PDF](docs/out/Plong_Chronicle_Implementation_Plan.pdf))
+- [Test plan](docs/TEST_PLAN.md) (version 1.1; also as [Word](docs/Plong_Chronicle_Test_Plan.docx) and [PDF](docs/out/Plong_Chronicle_Test_Plan.pdf))
+- [Diagrams](docs/diagrams/) (PlantUML sources, rendered in [docs/images](docs/images/))
+- [Changelog](CHANGELOG.md)
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
