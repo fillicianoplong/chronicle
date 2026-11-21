@@ -9,6 +9,7 @@ Chronicle is a website for one person, in a browser. It shows an interactive, se
 This is what Milestones 0 to 1 shipped. The [Changelog](CHANGELOG.md) has the detail for each version.
 
 - Recorded Wikidata responses can be read through a fixture stand-in. That stand-in never calls the network.
+- Outgoing Wikidata requests pass through one gate: one query and one API request at a time, two seconds between requests on the same lane, a 60-second abort, and limited retries. Nothing calls that gate from the page yet.
 - The home page is a Plakat shell: a top rule, the Chronicle wordmark, a subject search box, and an empty state. The box keeps what is typed. Submitting it does not load a subject or a timeline yet.
 - Light and dark colors follow the system setting. Text on the red button is white in light mode and dark in dark mode. Space Grotesk and Space Mono are self-hosted, under the SIL Open Font License.
 - Every page has a header, a main region, and a footer. The footer says the data comes from Wikidata under CC0 and links to About.

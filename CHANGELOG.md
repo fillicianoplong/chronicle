@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Wikidata requests go through one gate. It runs one query and one API request at a time, waits two seconds between requests on a lane, aborts a request at 60 seconds, retries server and network failures twice, and honors Retry-After.
 - A source interface for subjects, series, batches, and labels, plus a fixture-backed stand-in that never calls the network.
 - GitHub Pages publishes the site at https://fillicianoplong.github.io/chronicle/ on every push to main.
 - Smoke checks for the home and About pages in Chromium, Firefox, and WebKit, in light and dark. Each page has header, main, and footer landmarks, and axe reports no violations.
