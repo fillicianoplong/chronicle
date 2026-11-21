@@ -1,10 +1,24 @@
 import { fileURLToPath } from 'node:url'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
+function dropContentSecurityPolicyInDev(): Plugin {
+  return {
+    name: 'chronicle-dev-csp',
+    apply: 'serve',
+    transformIndexHtml(html) {
+      return html.replace(
+        /\s*<meta\s+[^>]*http-equiv="Content-Security-Policy"[\s\S]*?>/gi,
+        '',
+      )
+    },
+  }
+}
+
 export default defineConfig({
   base: '/chronicle/',
-  plugins: [react()],
+  plugins: [react(), dropContentSecurityPolicyInDev()],
   build: {
     rollupOptions: {
       input: {

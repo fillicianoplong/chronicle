@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 const port = 4173
-const baseURL = `http://127.0.0.1:${String(port)}/chronicle/`
+const baseURL = `https://127.0.0.1:${String(port)}/chronicle/`
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,11 +11,13 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL,
+    ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
   },
   webServer: {
-    command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${String(port)} --strictPort`,
+    command: 'npm run build && node scripts/preview-tls.mjs',
     url: baseURL,
+    ignoreHTTPSErrors: true,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
