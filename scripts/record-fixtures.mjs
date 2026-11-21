@@ -226,8 +226,53 @@ async function recordBatches(filePrefix, qid) {
   return files
 }
 
+const SEARCHES = [
+  { name: 'search-marie-cu.json', query: 'Marie Cu', expectId: 'Q7186' },
+  { name: 'search-zzqqxx.json', query: 'zzqqxx', expectId: null },
+]
+
+function searchSpec(entry) {
+  return {
+    name: entry.name,
+    gapMs: API_GAP_MS,
+    method: 'GET',
+    url: apiUrl({
+      action: 'wbsearchentities',
+      language: 'en',
+      uselang: 'en',
+      type: 'item',
+      limit: '10',
+      search: entry.query,
+    }),
+    accept: 'application/json',
+    query: entry.query,
+  }
+}
+
+async function recordSearch(entry) {
+  const body = await record(searchSpec(entry))
+  if (entry.expectId) {
+    requireHit(body, entry.expectId, entry.query)
+    return body
+  }
+  if (!Array.isArray(body.search)) {
+    throw new Error(`${entry.name} did not return a search list`)
+  }
+  return body
+}
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true })
+  const wanted = process.argv.slice(2)
+  if (wanted.length > 0) {
+    for (const name of wanted) {
+      const entry = SEARCHES.find((item) => item.name === name)
+      if (!entry) throw new Error(`No recorder entry named ${name}`)
+      await recordSearch(entry)
+    }
+    console.error('fixture recording finished')
+    return
+  }
 
   const trumpSearch = await record({
     name: 'search-donald-tru.json',
@@ -319,6 +364,9 @@ async function main() {
 
   await recordBatches('caesar', 'Q1048')
   await recordBatches('california', 'Q99')
+  for (const entry of SEARCHES) {
+    await recordSearch(entry)
+  }
   console.error('fixture recording finished')
 }
 

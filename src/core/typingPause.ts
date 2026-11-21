@@ -8,7 +8,10 @@ export const TYPING_PAUSE_MS = 300
 export function createTypingPause(
   sleep: (ms: number) => Promise<void>,
   wait = TYPING_PAUSE_MS,
-): { schedule(text: string): Promise<string | null> } {
+): {
+  schedule(text: string): Promise<string | null>
+  invalidate(): void
+} {
   let generation = 0
   return {
     async schedule(text: string): Promise<string | null> {
@@ -16,6 +19,9 @@ export function createTypingPause(
       await sleep(wait)
       if (mine !== generation) return null
       return text
+    },
+    invalidate(): void {
+      generation += 1
     },
   }
 }

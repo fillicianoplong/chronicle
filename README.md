@@ -10,7 +10,7 @@ This is what Milestones 0 to 1 shipped. The [Changelog](CHANGELOG.md) has the de
 
 - Recorded Wikidata responses can be read through a fixture stand-in. That stand-in never calls the network.
 - Outgoing Wikidata requests pass through one gate: one query and one API request at a time, two seconds between requests on the same lane, a 60-second abort, and limited retries.
-- A partial name is sent to the Wikidata entity search after a short pause in typing. The search box on the page does not show those matches yet.
+- The search box shows matching subjects after a short pause: label, description, and Q-ID. Enter opens the top suggestion and shows that subject. A name with no match says "No matching subject. Check the spelling or try another name." Picking a subject does not load a timeline yet.
 - The home page is a Plakat shell: a top rule, the Chronicle wordmark, a subject search box, and an empty state. The box keeps what is typed. Submitting it does not load a subject or a timeline yet.
 - Light and dark colors follow the system setting. Text on the red button is white in light mode and dark in dark mode. Space Grotesk and Space Mono are self-hosted, under the SIL Open Font License.
 - Every page has a header, a main region, and a footer. The footer says the data comes from Wikidata under CC0 and links to About.

@@ -21,4 +21,18 @@ describe('typing pause', () => {
     await expect(first).resolves.toBeNull()
     await expect(second).resolves.toBe('Marie Cu')
   })
+
+  it('drops a pending pause when invalidated', async () => {
+    vi.useFakeTimers()
+    const pause = createTypingPause(
+      (ms) =>
+        new Promise((resolve) => {
+          setTimeout(resolve, ms)
+        }),
+    )
+    const pending = pause.schedule('Marie Cu')
+    pause.invalidate()
+    await vi.advanceTimersByTimeAsync(TYPING_PAUSE_MS)
+    await expect(pending).resolves.toBeNull()
+  })
 })

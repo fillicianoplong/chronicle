@@ -1,25 +1,62 @@
+import { useState } from 'react'
+import { createWikidataSource } from './data/TimelineSource.ts'
+import type { SubjectHit, TimelineSource } from './data/TimelineSource.ts'
 import { shellPage, type ShellPage } from './shell-page.ts'
+import { PickedSubject } from './ui/PickedSubject.tsx'
+import { SubjectSearch } from './ui/SubjectSearch.tsx'
 
 const homeHref = import.meta.env.BASE_URL
 const aboutHref = `${import.meta.env.BASE_URL}about/`
 
-export function App() {
+export function App({ source }: { source?: TimelineSource }) {
   const page = shellPage(window.location.pathname)
+  const [owned] = useState<TimelineSource | null>(() =>
+    source === undefined ? createWikidataSource() : null,
+  )
+  const active = source ?? owned
+  const [subject, setSubject] = useState<SubjectHit | null>(null)
+  if (!active) {
+    throw new Error('A subject source is required')
+  }
 
   return (
     <div className="page">
       <div className="top-rule" aria-hidden="true" />
-      <SiteHeader page={page} />
-      <main>{page === 'about' ? <About /> : <Home />}</main>
+      <SiteHeader
+        page={page}
+        source={active}
+        hasSubject={subject !== null}
+        onPick={setSubject}
+      />
+      <main>
+        {page === 'about' ? (
+          <About />
+        ) : subject ? (
+          <PickedSubject subject={subject} />
+        ) : (
+          <Home />
+        )}
+      </main>
       <SiteFooter page={page} />
     </div>
   )
 }
 
-function SiteHeader({ page }: { page: ShellPage }) {
+function SiteHeader({
+  page,
+  source,
+  hasSubject,
+  onPick,
+}: {
+  page: ShellPage
+  source: TimelineSource
+  hasSubject: boolean
+  onPick: (subject: SubjectHit) => void
+}) {
+  const brandIsHeading = page === 'home' && !hasSubject
   return (
     <header className="site-header">
-      {page === 'home' ? (
+      {brandIsHeading ? (
         <h1 className="brand">
           <a href={homeHref}>Chronicle</a>
         </h1>
@@ -28,61 +65,10 @@ function SiteHeader({ page }: { page: ShellPage }) {
           Chronicle
         </a>
       )}
-      {page === 'home' ? <SubjectSearch /> : null}
+      {page === 'home' ? (
+        <SubjectSearch source={source} onPick={onPick} />
+      ) : null}
     </header>
-  )
-}
-
-function SubjectSearch() {
-  return (
-    <form
-      className="subject-search"
-      role="search"
-      onSubmit={(event) => {
-        event.preventDefault()
-      }}
-    >
-      <label className="visually-hidden" htmlFor="subject">
-        Subject
-      </label>
-      <div className="subject-search-row">
-        <SearchIcon />
-        <input
-          id="subject"
-          name="subject"
-          type="search"
-          placeholder="Search a person, place, or topic"
-          autoComplete="off"
-        />
-        <button type="submit">Search</button>
-      </div>
-    </form>
-  )
-}
-
-function SearchIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      aria-hidden="true"
-    >
-      <circle
-        cx="6.75"
-        cy="6.75"
-        r="4.4"
-        stroke="currentColor"
-        strokeWidth="1.4"
-      />
-      <path
-        d="M10.2 10.2L14 14"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="square"
-      />
-    </svg>
   )
 }
 

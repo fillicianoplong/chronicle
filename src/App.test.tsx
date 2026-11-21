@@ -1,13 +1,41 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { StrictMode } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { App } from './App.tsx'
+import type { SubjectHit, TimelineSource } from './data/TimelineSource.ts'
 
-function renderApp() {
+const marie: SubjectHit = {
+  id: 'Q7186' as SubjectHit['id'],
+  label: 'Marie Curie',
+  description: 'Polish-born French physicist and chemist (1867–1934)',
+}
+
+function sourceFor(textToHits: (text: string) => SubjectHit[]): {
+  source: TimelineSource
+  fetchBatch: ReturnType<typeof vi.fn>
+} {
+  const fetchBatch = vi.fn(() =>
+    Promise.resolve({
+      ok: false as const,
+      error: { kind: 'badShape' as const, detail: 'not used' },
+    }),
+  )
+  return {
+    fetchBatch,
+    source: {
+      searchSubjects: (text) => Promise.resolve(textToHits(text)),
+      searchProperties: () => Promise.resolve([]),
+      fetchBatch,
+      fetchLabels: () => Promise.resolve(new Map()),
+    },
+  }
+}
+
+function renderApp(source: TimelineSource = sourceFor(() => []).source) {
   return render(
     <StrictMode>
-      <App />
+      <App source={source} />
     </StrictMode>,
   )
 }
@@ -19,7 +47,7 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Chronicle' }),
     ).toBeVisible()
-    expect(screen.getByRole('searchbox', { name: 'Subject' })).toHaveAttribute(
+    expect(screen.getByRole('combobox', { name: 'Subject' })).toHaveAttribute(
       'placeholder',
       'Search a person, place, or topic',
     )
@@ -43,24 +71,52 @@ describe('App', () => {
     const user = userEvent.setup()
     renderApp()
 
-    const search = screen.getByRole('searchbox', { name: 'Subject' })
+    const search = screen.getByRole('combobox', { name: 'Subject' })
     await user.type(search, 'London')
 
     expect(search).toHaveValue('London')
+    expect(
+      await screen.findByText(
+        'No matching subject. Check the spelling or try another name.',
+      ),
+    ).toBeVisible()
   })
 
-  it('leaves the empty state in place when search is submitted', async () => {
+  it('shows the picked subject and does not load a timeline', async () => {
     const user = userEvent.setup()
-    renderApp()
+    const { source, fetchBatch } = sourceFor((text) =>
+      text === 'Marie Cu' ? [marie] : [],
+    )
+    renderApp(source)
 
-    const search = screen.getByRole('searchbox', { name: 'Subject' })
-    await user.type(search, 'Q22686')
-    await user.click(screen.getByRole('button', { name: 'Search' }))
+    const search = screen.getByRole('combobox', { name: 'Subject' })
+    await user.type(search, 'Marie Cu')
+    await screen.findByRole('option', { name: /Marie Curie/ })
+    await user.keyboard('{Enter}')
 
-    expect(search).toHaveValue('Q22686')
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Marie Curie' }),
+    ).toBeVisible()
+    expect(screen.getByText('Q7186')).toBeVisible()
+    expect(screen.getByText(marie.description)).toBeVisible()
+    expect(fetchBatch).not.toHaveBeenCalled()
+  })
+
+  it('shows a no-match message and leaves the empty state in place', async () => {
+    const user = userEvent.setup()
+    const { source, fetchBatch } = sourceFor(() => [])
+    renderApp(source)
+
+    await user.type(screen.getByRole('combobox', { name: 'Subject' }), 'zzqqxx')
+    expect(
+      await screen.findByText(
+        'No matching subject. Check the spelling or try another name.',
+      ),
+    ).toBeVisible()
     expect(
       screen.getByText('Search for a Wikidata subject to see its timeline.'),
     ).toBeVisible()
+    expect(fetchBatch).not.toHaveBeenCalled()
   })
 
   it('explains gathering, limits, and unencrypted notes on About', () => {
@@ -90,7 +146,7 @@ describe('App', () => {
       'page',
     )
     expect(
-      screen.queryByRole('searchbox', { name: 'Subject' }),
+      screen.queryByRole('combobox', { name: 'Subject' }),
     ).not.toBeInTheDocument()
   })
 })

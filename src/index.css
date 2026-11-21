@@ -83,6 +83,10 @@ a.brand {
   max-width: 560px;
 }
 
+.subject-search-field {
+  position: relative;
+}
+
 .subject-search-row {
   display: flex;
   align-items: center;
@@ -138,6 +142,54 @@ a.brand {
 
 .brand a:focus-visible,
 a.brand:focus-visible,
+.suggestions {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--c-bg);
+  border: var(--bw-strong) solid var(--c-border-strong);
+}
+
+.suggestions li {
+  display: grid;
+  gap: 2px;
+  min-height: var(--target-min);
+  padding: var(--sp-2) var(--sp-3);
+  cursor: pointer;
+}
+
+.suggestions li[aria-selected='true'] {
+  background: var(--c-accent-soft);
+}
+
+.suggestion-label {
+  font-weight: var(--fw-bold);
+}
+
+.suggestion-description {
+  color: var(--c-text-muted);
+  font-size: var(--fs-12);
+}
+
+.suggestion-id {
+  color: var(--c-text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+
+.subject-notice {
+  min-height: 1.2rem;
+  margin: var(--sp-2) 0 0;
+  color: var(--c-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+
 .subject-search input:focus-visible,
 .subject-search button:focus-visible,
 .site-footer a:focus-visible {
@@ -150,6 +202,7 @@ a.brand:focus-visible,
 }
 
 .empty-state h2,
+.picked-subject h1,
 .about h1 {
   margin: 0;
   font-size: var(--fs-44);
@@ -159,12 +212,21 @@ a.brand:focus-visible,
   text-transform: uppercase;
 }
 
-.empty-state p {
+.empty-state p,
+.picked-subject p {
   margin: var(--sp-3) 0 0;
   max-width: 40rem;
   color: var(--c-text-muted);
   font-family: var(--font-mono);
   font-size: 13px;
+}
+
+.picked-subject {
+  padding: var(--sp-12) var(--page-pad) var(--sp-8);
+}
+
+.picked-id {
+  margin-top: var(--sp-2);
 }
 
 .about {

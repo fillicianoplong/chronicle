@@ -7,9 +7,10 @@ test('home page loads the Chronicle shell', async ({ page }) => {
   await expect(
     page.getByRole('heading', { level: 1, name: 'Chronicle' }),
   ).toBeVisible()
-  await expect(
-    page.getByRole('searchbox', { name: 'Subject' }),
-  ).toHaveAttribute('placeholder', 'Search a person, place, or topic')
+  await expect(page.getByRole('combobox', { name: 'Subject' })).toHaveAttribute(
+    'placeholder',
+    'Search a person, place, or topic',
+  )
   await expect(page.getByRole('button', { name: 'Search' })).toBeVisible()
   await expect(
     page.getByText('Search for a Wikidata subject to see its timeline.'),

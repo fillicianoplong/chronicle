@@ -15,6 +15,8 @@ const required = [
   'california-batch-1.json',
   'california-batch-2.json',
   'california-batch-3.json',
+  'search-marie-cu.json',
+  'search-zzqqxx.json',
 ]
 
 interface Fixture {
@@ -77,19 +79,29 @@ describe('recorded Wikidata fixtures', () => {
     }
   })
 
-  it('spaces requests at least 2 seconds apart', async () => {
+  it('spaces requests at least 2 seconds apart within each session', async () => {
     const fixtures = await loadFixtures()
-    const session = fixtures[0]?.fixture.session
-    expect(session).toBeTruthy()
-    fixtures.forEach(({ name, fixture }, index) => {
-      expect(fixture.session, name).toBe(session)
-      expect(fixture.sequence, name).toBe(index + 1)
-      if (fixture.sequence === 1) {
-        expect(fixture.sincePreviousMs, name).toBeNull()
-      } else {
-        expect(fixture.sincePreviousMs, name).toBeGreaterThanOrEqual(2000)
-      }
-    })
+    const bySession = new Map<string, { name: string; fixture: Fixture }[]>()
+    for (const entry of fixtures) {
+      const list = bySession.get(entry.fixture.session) ?? []
+      list.push(entry)
+      bySession.set(entry.fixture.session, list)
+    }
+    expect(bySession.size).toBeGreaterThan(0)
+    for (const [session, entries] of bySession) {
+      const ordered = [...entries].sort(
+        (left, right) => left.fixture.sequence - right.fixture.sequence,
+      )
+      ordered.forEach(({ name, fixture }, index) => {
+        expect(fixture.session, name).toBe(session)
+        expect(fixture.sequence, name).toBe(index + 1)
+        if (fixture.sequence === 1) {
+          expect(fixture.sincePreviousMs, name).toBeNull()
+        } else {
+          expect(fixture.sincePreviousMs, name).toBeGreaterThanOrEqual(2000)
+        }
+      })
+    }
   })
 
   it('keeps the query text that was sent', async () => {
@@ -97,6 +109,16 @@ describe('recorded Wikidata fixtures', () => {
     const byName = new Map(fixtures.map(({ name, fixture }) => [name, fixture]))
 
     expect(byName.get('search-donald-tru.json')?.query).toBe('Donald Tru')
+    expect(byName.get('search-marie-cu.json')?.query).toBe('Marie Cu')
+    expect(byName.get('search-zzqqxx.json')?.query).toBe('zzqqxx')
+    const marie = byName.get('search-marie-cu.json')?.response.body as {
+      search?: { id?: string }[]
+    }
+    expect(marie.search?.[0]?.id).toBe('Q7186')
+    const none = byName.get('search-zzqqxx.json')?.response.body as {
+      search?: unknown[]
+    }
+    expect(none.search).toEqual([])
     expect(byName.get('search-california.json')?.query).toBe('California')
     expect(byName.get('search-julius-caesar.json')?.query).toBe('Julius Caesar')
     expect(byName.get('properties-juris.json')?.query).toBe('jurisdiction')
