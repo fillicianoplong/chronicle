@@ -51,7 +51,7 @@ function SubjectSearch() {
           id="subject"
           name="subject"
           type="search"
-          placeholder="For example, Donald Trump"
+          placeholder="Search a person, place, or topic"
           autoComplete="off"
         />
         <button type="submit">Search</button>

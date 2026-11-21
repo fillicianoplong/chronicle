@@ -19,7 +19,10 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Chronicle' }),
     ).toBeVisible()
-    expect(screen.getByRole('searchbox', { name: 'Subject' })).toBeVisible()
+    expect(screen.getByRole('searchbox', { name: 'Subject' })).toHaveAttribute(
+      'placeholder',
+      'Search a person, place, or topic',
+    )
     expect(screen.getByRole('button', { name: 'Search' })).toBeVisible()
     expect(
       screen.getByRole('heading', { level: 2, name: 'No subject yet' }),
@@ -41,9 +44,9 @@ describe('App', () => {
     renderApp()
 
     const search = screen.getByRole('searchbox', { name: 'Subject' })
-    await user.type(search, 'Donald Trump')
+    await user.type(search, 'London')
 
-    expect(search).toHaveValue('Donald Trump')
+    expect(search).toHaveValue('London')
   })
 
   it('leaves the empty state in place when search is submitted', async () => {
