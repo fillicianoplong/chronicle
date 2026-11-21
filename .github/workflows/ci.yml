@@ -45,3 +45,9 @@ jobs:
 
       - name: End-to-end tests
         run: npm run test:e2e
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Check licenses
+        run: npm run licenses

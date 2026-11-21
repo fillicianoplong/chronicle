@@ -23,6 +23,7 @@
     "playwright.config.ts",
     "e2e",
     "tests/**/*.test.ts",
-    "eslint/chronicle-boundaries.d.ts"
+    "eslint/chronicle-boundaries.d.ts",
+    "scripts/check-licenses.d.mts"
   ]
 }
