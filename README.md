@@ -48,7 +48,7 @@ Coverage targets are 80% of lines and 70% of branches in `src/`, and 80% of line
 
 ## Status
 
-Early development. The current milestone is setup and spikes. The shell builds, and CI lints, typechecks, tests, and builds it. Publishing to GitHub Pages is a separate step and is not set up yet.
+Early development. Setup is in place: lint, tests, CI, recorded fixtures, and the three spikes. Publishing to GitHub Pages is a separate step and is not set up yet. Next is the runnable shell.
 
 ## Roadmap
 

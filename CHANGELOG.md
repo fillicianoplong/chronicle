@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A fixture recorder, plus recorded Wikidata responses for Donald Trump, California, Julius Caesar, label lookup, and subject and property search.
 - Spike notes for filtering 20,000 events. On a 4x CPU throttle the precomputed filter stayed under 5 ms, so a Web Worker is not the default.
 - Spike notes for IndexedDB. A 20 MB value round-tripped in Chromium, Firefox, and WebKit. Persistent storage was not granted.
+- Spike notes for vis-timeline 8.5.6. The lazy JavaScript chunks are 152,872 bytes gzipped together. Keep the library, and do not open the view on all 5,000 events at once.
 - Vitest unit tests and Playwright end-to-end tests with axe.
 - GitHub Actions CI workflow (lint, formatting, typecheck, unit tests with coverage, build, and Playwright).
 - MIT license.

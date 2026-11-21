@@ -1,0 +1,115 @@
+{
+  "measuredAt": "2026-11-21T18:18:06.401Z",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "Intel(R) Xeon(R) Processor",
+    "logicalCpus": 4,
+    "node": "v22.23.4"
+  },
+  "library": "vis-timeline@8.5.6",
+  "importPath": "vis-timeline/esnext with vis-data, built by Vite",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "note": "Headless Chromium on this machine. Not a phone. 4x is Chrome DevTools CPU throttling.",
+  "sizes": {
+    "viteAssets": [
+      {
+        "name": "vis-timeline-graph2d-DuBDPhcD.js",
+        "bytes": 420190,
+        "gzipBytes": 113882
+      },
+      {
+        "name": "vis-data-Df9nLoC2.js",
+        "bytes": 107392,
+        "gzipBytes": 38990
+      },
+      {
+        "name": "vis-timeline-graph2d-5-TIXSrZ.css",
+        "bytes": 18064,
+        "gzipBytes": 3356
+      },
+      {
+        "name": "index-CEMrGywl.js",
+        "bytes": 4147,
+        "gzipBytes": 1873
+      }
+    ],
+    "publishedStandaloneMinJs": {
+      "bytes": 548303,
+      "gzipBytes": 157066
+    },
+    "publishedMinCss": {
+      "bytes": 19837,
+      "gzipBytes": 3629
+    }
+  },
+  "unthrottled": {
+    "rate": 1,
+    "result": {
+      "itemCount": 5000,
+      "loadMs": 20.800000000046566,
+      "createMs": 531.8000000000466,
+      "visibleAfterCreate": 5000,
+      "visibleAfterZoom": 849,
+      "zoomIn": {
+        "runs": 6,
+        "medianMs": 144.29999999981374,
+        "maxMs": 291.4000000001397
+      },
+      "pan": {
+        "runs": 6,
+        "medianMs": 33.799999999813735,
+        "maxMs": 48.199999999953434
+      },
+      "animatedZoomMs": 813.5,
+      "animatedFrames": {
+        "frames": 35,
+        "over32Ms": 11,
+        "over50Ms": 0,
+        "runs": 35,
+        "medianMs": 16.700000000000273,
+        "maxMs": 50
+      },
+      "threw": null
+    },
+    "errors": []
+  },
+  "throttled4x": {
+    "rate": 4,
+    "result": {
+      "itemCount": 5000,
+      "loadMs": 63.5999999998603,
+      "createMs": 2160.6999999999534,
+      "visibleAfterCreate": 5000,
+      "visibleAfterZoom": 849,
+      "zoomIn": {
+        "runs": 6,
+        "medianMs": 537.5,
+        "maxMs": 1234.6000000000931
+      },
+      "pan": {
+        "runs": 6,
+        "medianMs": 95.10000000009313,
+        "maxMs": 99.19999999995343
+      },
+      "animatedZoomMs": 814.6000000000931,
+      "animatedFrames": {
+        "frames": 12,
+        "over32Ms": 6,
+        "over50Ms": 6,
+        "runs": 12,
+        "medianMs": 66.59999999999945,
+        "maxMs": 166.59999999999945
+      },
+      "threw": null
+    },
+    "errors": []
+  },
+  "pixel7": {
+    "width": 412,
+    "height": 839
+  }
+}
