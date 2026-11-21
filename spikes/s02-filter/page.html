@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Filter spike</title>
+  </head>
+  <body>
+    <div id="rows"></div>
+    <script>
+      const EVENT_COUNT = 20000
+      const WORDS = [
+        'treaty',
+        'election',
+        'born',
+        'died',
+        'city',
+        'act',
+        'law',
+        'member',
+        'award',
+        'founded',
+        'capital',
+        'river',
+        'battle',
+        'published',
+        'opened',
+      ]
+      const RELATIONSHIPS = [
+        'signatory',
+        'country',
+        'author',
+        'part of',
+        'instance of',
+      ]
+
+      function fold(value) {
+        return value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase()
+      }
+
+      function makeEvents() {
+        const events = []
+        for (let i = 0; i < EVENT_COUNT; i += 1) {
+          const label = `Event ${i} ${WORDS[i % WORDS.length]} ${WORDS[(i * 3) % WORDS.length]}`
+          const description = `Description ${i} about ${WORDS[(i * 5) % WORDS.length]} in the public record for this subject`
+          const relationships = [RELATIONSHIPS[i % RELATIONSHIPS.length]]
+          events.push({
+            id: i,
+            label,
+            description,
+            relationships,
+            searchText: '',
+          })
+        }
+        events[100].label = 'Paris Agreement'
+        events[100].description = 'Climate accord signed in the city'
+        events[100].relationships = ['signatory']
+        events[250].label = 'École normale supérieure'
+        events[250].description = 'A school in Paris'
+        for (let n = 0; n < 40; n += 1) {
+          const event = events[500 + n * 17]
+          event.label = `Paris meeting ${n}`
+          event.description = 'The agreement was noted in the record'
+        }
+        return events
+      }
+
+      function precompute(events) {
+        const start = performance.now()
+        for (const event of events) {
+          event.searchText = fold(
+            `${event.label}\n${event.description}\n${event.relationships.join(' ')}`,
+          )
+        }
+        return performance.now() - start
+      }
+
+      function filterPrecomputed(events, query) {
+        const words = fold(query)
+          .split(/\s+/)
+          .filter((word) => word.length > 0)
+        if (words.length === 0) return events
+        const matched = []
+        for (const event of events) {
+          let ok = true
+          for (const word of words) {
+            if (!event.searchText.includes(word)) {
+              ok = false
+              break
+            }
+          }
+          if (ok) matched.push(event)
+        }
+        return matched
+      }
+
+      function filterNaive(events, query) {
+        const words = fold(query)
+          .split(/\s+/)
+          .filter((word) => word.length > 0)
+        if (words.length === 0) return events
+        const matched = []
+        for (const event of events) {
+          const text = fold(
+            `${event.label}\n${event.description}\n${event.relationships.join(' ')}`,
+          )
+          let ok = true
+          for (const word of words) {
+            if (!text.includes(word)) {
+              ok = false
+              break
+            }
+          }
+          if (ok) matched.push(event)
+        }
+        return matched
+      }
+
+      function summarize(times, matchCount) {
+        const sorted = [...times].sort((a, b) => a - b)
+        const mid = Math.floor(sorted.length / 2)
+        return {
+          runs: times.length,
+          matchCount,
+          minMs: sorted[0],
+          medianMs: sorted[mid],
+          p95Ms:
+            sorted[
+              Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))
+            ],
+          maxMs: sorted[sorted.length - 1],
+        }
+      }
+
+      function timeRuns(fn, runs) {
+        const times = []
+        let matchCount = 0
+        for (let i = 0; i < runs; i += 1) {
+          const start = performance.now()
+          const matched = fn()
+          times.push(performance.now() - start)
+          matchCount = matched.length
+        }
+        return summarize(times, matchCount)
+      }
+
+      function writeRows(matches) {
+        const root = document.getElementById('rows')
+        const start = performance.now()
+        root.replaceChildren()
+        for (const event of matches.slice(0, 50)) {
+          const row = document.createElement('p')
+          row.textContent = `${event.label} — ${event.description}`
+          root.append(row)
+        }
+        return performance.now() - start
+      }
+
+      function calibrate() {
+        const start = performance.now()
+        let value = 0
+        for (let i = 0; i < 8000000; i += 1) {
+          value = Math.imul(value ^ i, 1664525)
+        }
+        return { ms: performance.now() - start, value }
+      }
+
+      window.runFilterSpike = function runFilterSpike() {
+        const warmupRuns = 5
+        const runs = 31
+        const events = makeEvents()
+        const precomputeMs = precompute(events)
+        filterPrecomputed(events, 'paris agreement')
+        for (let i = 0; i < warmupRuns; i += 1) {
+          filterPrecomputed(events, 'paris agreement')
+          filterNaive(events, 'paris')
+        }
+        const parisAgreement = timeRuns(
+          () => filterPrecomputed(events, 'paris agreement'),
+          runs,
+        )
+        const paris = timeRuns(() => filterPrecomputed(events, 'paris'), runs)
+        const ecole = timeRuns(() => filterPrecomputed(events, 'ecole'), runs)
+        const empty = timeRuns(() => filterPrecomputed(events, ''), runs)
+        const naiveParisAgreement = timeRuns(
+          () => filterNaive(events, 'paris agreement'),
+          runs,
+        )
+        const prefixes = [
+          'a',
+          'ag',
+          'agr',
+          'agre',
+          'agree',
+          'agreem',
+          'agreeme',
+          'agreement',
+        ]
+        const typingSamples = prefixes.map(() => [])
+        for (let pass = 0; pass < 11; pass += 1) {
+          prefixes.forEach((prefix, index) => {
+            const start = performance.now()
+            filterPrecomputed(events, prefix)
+            typingSamples[index].push(performance.now() - start)
+          })
+        }
+        const typing = prefixes.map((prefix, index) => ({
+          prefix,
+          ...summarize(
+            typingSamples[index],
+            filterPrecomputed(events, prefix).length,
+          ),
+        }))
+        const domSamples = []
+        const page = filterPrecomputed(events, 'paris')
+        for (let i = 0; i < runs; i += 1) {
+          domSamples.push(writeRows(page))
+        }
+        return {
+          eventCount: events.length,
+          precomputeMs,
+          calibration: calibrate(),
+          parisAgreement,
+          paris,
+          ecole,
+          empty,
+          naiveParisAgreement,
+          typing,
+          domWrite: summarize(domSamples, Math.min(50, page.length)),
+          userAgent: navigator.userAgent,
+        }
+      }
+    </script>
+  </body>
+</html>
