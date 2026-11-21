@@ -44,9 +44,28 @@ npm run typecheck
 npm run test:coverage
 ```
 
+Coverage targets are 80% of lines and 70% of branches in `src/`, and 80% of lines in `src/core`. CI prints the coverage summary. There is no coverage badge.
+
 ## Status
 
-Early development.
+Early development. The current milestone is setup and spikes. The shell builds, and CI lints, typechecks, tests, and builds it. Publishing to GitHub Pages is a separate step and is not set up yet.
+
+## Roadmap
+
+Milestones follow the [implementation plan](docs/IMPLEMENTATION_PLAN.md).
+
+| Milestone                         | Goal                                                                                               |
+| --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| M0 Setup and spikes               | A building, linted, tested app, with recorded fixtures and answers to the open spikes.             |
+| M1 Runnable shell                 | The site loads at /chronicle/ with tokens, a header, a footer, and a content security policy.      |
+| M2 Data access and subject search | Typing a name shows Wikidata suggestions.                                                          |
+| M3 Timeline loading               | Picking a subject loads every batch, fills in labels, and shows pages of 50.                       |
+| M4 Too-broad subjects             | Huge subjects load one relationship at a time. The search form can narrow a search before loading. |
+| M5 Filters, URL state, and errors | Filters, shareable URLs, and the error messages work.                                              |
+| M6 Export, import, and selection  | Timelines and curated selections round-trip through JSON files.                                    |
+| M7 Must complete                  | Every Must requirement is checked in the supported browsers.                                       |
+| M8 Should and Could features      | The remaining Should items, in the keep order from the plan, then the Could items.                 |
+| M9 Release                        | Public v1.0.0 on GitHub Pages, with docs that match what shipped.                                  |
 
 ## Documentation
 

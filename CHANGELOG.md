@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ESLint layer boundary rules. Only RequestGate may call fetch, core code may not import React, data-layer internals stay inside `src/data`, and `innerHTML` is banned.
 - Playwright projects for Chromium, Firefox, WebKit, Pixel 7, and iPhone 14. End-to-end tests block live Wikidata calls.
 - CI runs `npm audit` and a license check. High or critical advisories fail the job, and so does a license outside the allowed set.
+- README roadmap for milestones M0 through M9, with links to the project documents.
 - Vitest unit tests and Playwright end-to-end tests with axe.
 - GitHub Actions CI workflow (lint, formatting, typecheck, unit tests with coverage, build, and Playwright).
 - MIT license.
