@@ -40,11 +40,11 @@ These describe the finished app. What runs now is the list above.
 | Build | Vite |
 | Data | Wikidata SPARQL, and the wbsearchentities and wbgetentities APIs |
 | Storage | IndexedDB and JSON export; no database and no server |
-| Hosting | GitHub Pages, not set up yet |
+| Hosting | GitHub Pages |
 | Tests | Vitest, React Testing Library, Playwright, and axe-core |
 | CI | GitHub Actions |
 
-Chronicle is built for `/chronicle/`. GitHub Pages is not publishing it yet.
+The site is published at [fillicianoplong.github.io/chronicle/](https://fillicianoplong.github.io/chronicle/).
 
 ## Build and run
 
@@ -55,7 +55,7 @@ npm ci
 npm run dev
 ```
 
-`npm ci` installs the lockfile's exact versions. `npm run dev` starts the dev server at `http://127.0.0.1:5173/chronicle/`. `npm run build` typechecks and writes the production site to `dist/`, including `about/index.html`, for the `/chronicle/` base path. `npm run preview` serves that build over HTTPS at `https://127.0.0.1:4173/chronicle/` with a local certificate.
+`npm ci` installs the lockfile's exact versions. `npm run dev` starts the dev server at `http://127.0.0.1:5173/chronicle/`. `npm run build` typechecks and writes the production site to `dist/`, including `about/index.html`, for the `/chronicle/` base path. `npm run preview` serves that build over HTTPS at `https://127.0.0.1:4173/chronicle/` with a local certificate. A push to main publishes the same build to [fillicianoplong.github.io/chronicle/](https://fillicianoplong.github.io/chronicle/).
 
 ## Tests and CI
 
