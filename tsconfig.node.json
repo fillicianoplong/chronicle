@@ -18,5 +18,11 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "playwright.config.ts", "e2e"]
+  "include": [
+    "vite.config.ts",
+    "playwright.config.ts",
+    "e2e",
+    "tests/lint/boundaries.test.ts",
+    "eslint/chronicle-boundaries.d.ts"
+  ]
 }

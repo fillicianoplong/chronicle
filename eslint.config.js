@@ -5,6 +5,10 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import {
+  boundaryRules,
+  plugin as chronicleBoundaries,
+} from './eslint/chronicle-boundaries.js'
 
 export default defineConfig([
   globalIgnores([
@@ -13,6 +17,8 @@ export default defineConfig([
     'playwright-report',
     'test-results',
     'blob-report',
+    // Planted violations. The boundary test lints these on purpose.
+    'tests/lint/fixtures/**',
   ]),
   {
     files: ['**/*.{ts,tsx}'],
@@ -29,6 +35,10 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    plugins: {
+      chronicle: chronicleBoundaries,
+    },
+    rules: boundaryRules,
   },
   prettier,
 ])

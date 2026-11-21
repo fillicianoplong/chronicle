@@ -17,7 +17,7 @@ npm run build
 ```
 
 - `npm run typecheck` runs `tsc -b` in strict mode.
-- `npm run lint` runs `eslint .`.
+- `npm run lint` runs `eslint .`. Layer rules keep `fetch` inside `RequestGate`, keep React out of `src/core`, keep data-layer internals inside `src/data`, and ban `innerHTML` and `dangerouslySetInnerHTML`. Planted violations live in `tests/lint/fixtures/` and are ignored by that command. `tests/lint/boundaries.test.ts` lints them and expects each one to fail with the boundary rule named.
 - `npm run format:check` runs Prettier in check mode.
 - `npm test` runs Vitest once. `npm run test:coverage` adds the v8 coverage report over `src/`.
 - `npm run test:e2e` builds the site, serves it at `/chronicle/`, and runs Playwright. The unit suite lives under `src/**/*.test.ts` and `src/**/*.test.tsx`. The end-to-end suite lives under `e2e/`.
