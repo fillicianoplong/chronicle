@@ -19,17 +19,17 @@ npm run build
 - `npm run typecheck` runs `tsc -b` in strict mode.
 - `npm run lint` runs `eslint .`. Layer rules keep `fetch` inside `RequestGate`, keep React out of `src/core`, keep data-layer internals inside `src/data`, and ban `innerHTML` and `dangerouslySetInnerHTML`. Planted violations live in `tests/lint/fixtures/` and are ignored by that command. `tests/lint/boundaries.test.ts` lints them and expects each one to fail with the boundary rule named.
 - `npm run format:check` runs Prettier in check mode.
-- `npm test` runs Vitest once. `npm run test:coverage` adds the v8 coverage report over `src/`.
-- `npm run test:e2e` builds the site, serves it at `/chronicle/`, and runs Playwright. The unit suite lives under `src/**/*.test.ts` and `src/**/*.test.tsx`. The end-to-end suite lives under `e2e/`.
+- `npm test` runs Vitest once and exits non-zero when a test fails. `npm run test:coverage` adds the v8 coverage report over `src/`.
+- `npm run test:e2e` builds the site, serves it at `/chronicle/`, and runs Playwright. Projects are Chromium, Firefox, and WebKit at 1280 px, plus Pixel 7 and iPhone 14 emulation. The suite blocks `wikidata.org`, so a test that calls the live service fails. The unit suite lives under `src/**/*.test.ts`, `src/**/*.test.tsx`, and `tests/**/*.test.ts`. The end-to-end suite lives under `e2e/`.
 
 ## What the suite checks
 
 - **App shell.** The home page renders the Chronicle heading and basic page structure.
-- **Accessibility.** Playwright runs an axe scan on the home page in Chromium.
+- **Accessibility.** Playwright runs an axe scan on the home page in every browser project.
 - **Unit coverage.** Vitest covers modules under `src/`, excluding test files and `src/main.tsx`. Coverage is reported as text and HTML. The formal line and branch floors are in the [test plan](TEST_PLAN.md).
 
 ## CI
 
-The `CI` workflow in `.github/workflows/ci.yml` runs on every push to `main` (and on pull requests to `main`). It installs from the lockfile, then runs lint, the format check, the type check, unit tests with coverage, the production build, and Playwright in Chromium. Playwright installs the Chromium browser on the runner before the end-to-end step.
+The `CI` workflow in `.github/workflows/ci.yml` runs on every push to `main` (and on pull requests to `main`). It installs from the lockfile, then runs lint, the format check, the type check, unit tests with coverage, the production build, and Playwright. Playwright installs Chromium, Firefox, and WebKit on the runner before the end-to-end step. Mobile projects use those engines.
 
-The test plan also describes Firefox, WebKit, and mobile projects, live-smoke and contract jobs, and a coverage gate. Those are not in the current workflow.
+The test plan also describes a weekly live contract job, an opt-in live smoke suite, and a coverage gate. Those are not in this workflow yet.

@@ -40,5 +40,12 @@ export default defineConfig([
     },
     rules: boundaryRules,
   },
+  {
+    files: ['e2e/**/*.ts'],
+    rules: {
+      // Playwright fixture callbacks take a parameter named use.
+      'react-hooks/rules-of-hooks': 'off',
+    },
+  },
   prettier,
 ])
