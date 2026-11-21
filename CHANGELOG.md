@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Smoke checks for the home and About pages in Chromium, Firefox, and WebKit, in light and dark. Each page has header, main, and footer landmarks, and axe reports no violations.
 - Content security policy on the home and About pages. Scripts, styles, and fonts come from this site. Connections are limited to query.wikidata.org and www.wikidata.org, and insecure requests are upgraded.
 - Plakat app shell: header, subject search, empty state, footer crediting Wikidata under CC0, and an About page at `/chronicle/about/`.
 - Plakat design tokens and self-hosted Space Grotesk and Space Mono. Colors follow the system light and dark setting. A unit test checks text contrast of 4.5:1 and control contrast of 3:1.

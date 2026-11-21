@@ -48,7 +48,7 @@ Coverage targets are 80% of lines and 70% of branches in `src/`, and 80% of line
 
 ## Status
 
-Early development. Setup is in place: lint, tests, CI, recorded fixtures, and the three spikes. Publishing to GitHub Pages is a separate step and is not set up yet. Next is the runnable shell.
+Early development. The runnable shell is in place: Plakat tokens and self-hosted fonts, a header and footer, an About page, and a content security policy. Smoke checks cover Chromium, Firefox, and WebKit in light and dark. Publishing to GitHub Pages is a separate step and is not set up yet. Next is data access and subject search.
 
 ## Roadmap
 
