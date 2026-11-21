@@ -24,6 +24,7 @@
     "e2e",
     "tests/**/*.test.ts",
     "eslint/chronicle-boundaries.d.ts",
-    "scripts/check-licenses.d.mts"
+    "scripts/check-licenses.d.mts",
+    "scripts/record-fixtures.d.mts"
   ]
 }

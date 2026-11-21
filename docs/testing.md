@@ -32,6 +32,12 @@ npm audit --audit-level=high
 - **Accessibility.** Playwright runs an axe scan on the home page in every browser project.
 - **Unit coverage.** Vitest covers modules under `src/`, excluding test files and `src/main.tsx`. Coverage is reported as text and HTML. The formal line and branch floors are in the [test plan](TEST_PLAN.md).
 
+## Fixtures
+
+`npm run record:fixtures` records live Wikidata responses into `tests/fixtures/`. Run it by hand. It is not part of CI. Requests go out one at a time. API calls wait at least 5 seconds after the previous response, and queries wait at least 12 seconds. Each request sends a User-Agent and an Api-User-Agent naming Chronicle and the repository. Each file stores the request, the time, the gap since the previous request, and the query text.
+
+The committed responses are subject search for Donald Trump, California, and Julius Caesar; property search for "jurisdiction"; the Donald Trump batch (Q22686); a 50-id `wbgetentities` label lookup taken from that batch; the Julius Caesar batch (Q1048); and three California batches (Q99). `tests/fixtures/schema.test.ts` checks the shape and the spacing.
+
 ## CI
 
 The `CI` workflow in `.github/workflows/ci.yml` runs on every push to `main` (and on pull requests to `main`). It installs from the lockfile, then runs lint, the format check, the type check, unit tests with coverage, the production build, and Playwright. Playwright installs Chromium, Firefox, and WebKit on the runner before the end-to-end step. Mobile projects use those engines. The job then runs `npm audit --audit-level=high` and the license check. A failing test, a high or critical advisory, or a license outside the allowed set fails the job.
