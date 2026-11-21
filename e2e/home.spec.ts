@@ -22,3 +22,38 @@ test('home page has no accessibility violations', async ({ page }) => {
 
   expect(results.violations).toEqual([])
 })
+
+test('self-hosted fonts load from this site', async ({ page }) => {
+  await page.goto('/')
+  const loaded = await page.evaluate(async () => {
+    const view = globalThis as unknown as {
+      document: {
+        fonts: {
+          ready: Promise<void>
+          check: (font: string) => boolean
+        }
+        styleSheets: Array<{ cssRules: Array<{ cssText: string }> }>
+      }
+    }
+    await view.document.fonts.ready
+    const faces: string[] = []
+    for (const sheet of view.document.styleSheets) {
+      for (const rule of sheet.cssRules) {
+        if (rule.cssText.includes('@font-face')) faces.push(rule.cssText)
+      }
+    }
+    return {
+      ready: view.document.fonts.check('16px "Space Grotesk"'),
+      faces,
+    }
+  })
+
+  expect(loaded.ready).toBe(true)
+  expect(loaded.faces.length).toBeGreaterThan(0)
+  for (const face of loaded.faces) {
+    expect(face).toContain('/chronicle/')
+    expect(face).toContain('.woff2')
+    expect(face).not.toContain('fonts.gstatic.com')
+    expect(face).not.toContain('fonts.googleapis.com')
+  }
+})

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Plakat design tokens and self-hosted Space Grotesk and Space Mono. Colors follow the system light and dark setting. A unit test checks text contrast of 4.5:1 and control contrast of 3:1.
 - **Runnable shell:** Vite, React, and TypeScript scaffold, with ESLint and Prettier.
 - ESLint layer boundary rules. Only RequestGate may call fetch, core code may not import React, data-layer internals stay inside `src/data`, and `innerHTML` is banned.
 - Playwright projects for Chromium, Firefox, WebKit, Pixel 7, and iPhone 14. End-to-end tests block live Wikidata calls.

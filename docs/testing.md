@@ -29,6 +29,7 @@ npm audit --audit-level=high
 ## What the suite checks
 
 - **App shell.** The home page renders the Chronicle heading and basic page structure.
+- **Design tokens.** `tests/tokens.test.ts` reads `src/styles/tokens.css` and checks every text pair at 4.5:1 or better and every control pair at 3:1 or better, in light and dark. Other stylesheets under `src/` use token names rather than raw colors. Fonts are the self-hosted files in `src/styles/fonts/`.
 - **Accessibility.** Playwright runs an axe scan on the home page in every browser project.
 - **Unit coverage.** Vitest covers modules under `src/`, excluding test files and `src/main.tsx`. Coverage is reported as text and HTML. The formal line and branch floors are in the [test plan](TEST_PLAN.md).
 
