@@ -3,6 +3,9 @@
  * and labels. Adapters hide how a particular service is queried.
  */
 
+import { RequestGate } from './RequestGate.ts'
+import { WikidataSource } from './WikidataSource/WikidataSource.ts'
+
 export type QId = string & { readonly brand: 'QId' }
 export type PId = string & { readonly brand: 'PId' }
 export type EntityId = QId | PId
@@ -70,3 +73,7 @@ export interface TimelineSource {
 }
 
 export { FakeSource } from './FakeSource.ts'
+
+export function createWikidataSource(): TimelineSource {
+  return new WikidataSource(new RequestGate())
+}

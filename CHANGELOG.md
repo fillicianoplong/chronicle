@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Subject search asks the Wikidata entity search for matches after a short pause in typing. The search box on the page does not show those matches yet.
 - Wikidata requests go through one gate. It runs one query and one API request at a time, waits two seconds between requests on a lane, aborts a request at 60 seconds, retries server and network failures twice, and honors Retry-After.
 - A source interface for subjects, series, batches, and labels, plus a fixture-backed stand-in that never calls the network.
 - GitHub Pages publishes the site at https://fillicianoplong.github.io/chronicle/ on every push to main.
