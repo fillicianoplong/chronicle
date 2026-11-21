@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>IndexedDB spike</title>
+  </head>
+  <body>
+    <script>
+      const DB_NAME = 'chronicle-spike'
+      const STORE = 'blobs'
+      const KEY = 'payload'
+      const BYTES = 20 * 1024 * 1024
+
+      function withTimeout(promise, ms, label) {
+        return new Promise((resolve, reject) => {
+          const timer = setTimeout(() => {
+            reject(new Error(`${label} timed out after ${String(ms)} ms`))
+          }, ms)
+          promise.then(
+            (value) => {
+              clearTimeout(timer)
+              resolve(value)
+            },
+            (error) => {
+              clearTimeout(timer)
+              reject(error)
+            },
+          )
+        })
+      }
+
+      function openDb() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open(DB_NAME, 1)
+          request.onupgradeneeded = () => {
+            if (!request.result.objectStoreNames.contains(STORE)) {
+              request.result.createObjectStore(STORE)
+            }
+          }
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        })
+      }
+
+      function putPayload(db, payload) {
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, 'readwrite')
+          tx.objectStore(STORE).put(payload, KEY)
+          tx.oncomplete = () => resolve()
+          tx.onerror = () => reject(tx.error)
+          tx.onabort = () => reject(tx.error)
+        })
+      }
+
+      function getPayload(db) {
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction(STORE, 'readonly')
+          const request = tx.objectStore(STORE).get(KEY)
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        })
+      }
+
+      async function storageSnapshot() {
+        const snapshot = {
+          estimate: null,
+          persisted: null,
+          persist: null,
+          errors: [],
+        }
+        if (!navigator.storage) {
+          snapshot.errors.push('navigator.storage is missing')
+          return snapshot
+        }
+        try {
+          snapshot.estimate = await navigator.storage.estimate()
+        } catch (error) {
+          snapshot.errors.push(`estimate: ${error.name}: ${error.message}`)
+        }
+        try {
+          snapshot.persisted = await navigator.storage.persisted()
+        } catch (error) {
+          snapshot.errors.push(`persisted: ${error.name}: ${error.message}`)
+        }
+        return snapshot
+      }
+
+      window.writeSpike = async function writeSpike() {
+        const before = await storageSnapshot()
+        const payload = new Uint8Array(BYTES)
+        let seed = 1
+        for (let i = 0; i < payload.length; i += 1) {
+          seed = Math.imul(seed, 1664525) + 1013904223
+          payload[i] = seed & 255
+        }
+        const started = performance.now()
+        let writeError = null
+        let readBytes = 0
+        let roundTrip = false
+        try {
+          const db = await withTimeout(openDb(), 20000, 'indexedDB.open')
+          await withTimeout(putPayload(db, payload), 20000, 'indexedDB put')
+          const read = await withTimeout(getPayload(db), 20000, 'indexedDB get')
+          db.close()
+          readBytes = read?.byteLength ?? 0
+          roundTrip =
+            read instanceof Uint8Array &&
+            read.byteLength === payload.byteLength &&
+            read[0] === payload[0] &&
+            read[4096] === payload[4096] &&
+            read[1_000_000] === payload[1_000_000] &&
+            read[payload.byteLength - 1] === payload[payload.byteLength - 1]
+        } catch (error) {
+          writeError = `${error.name}: ${error.message}`
+        }
+        const writeMs = performance.now() - started
+        let persist = null
+        let persistError = null
+        try {
+          persist = await withTimeout(
+            navigator.storage.persist(),
+            20000,
+            'storage.persist',
+          )
+        } catch (error) {
+          persistError = `${error.name}: ${error.message}`
+        }
+        const after = await storageSnapshot()
+        return {
+          bytes: BYTES,
+          writeMs,
+          writeError,
+          readBytes,
+          roundTrip,
+          persist,
+          persistError,
+          before,
+          after,
+          origin: location.origin,
+          userAgent: navigator.userAgent,
+        }
+      }
+
+      window.readSpike = async function readSpike() {
+        let readBytes = 0
+        let readError = null
+        let marker = null
+        try {
+          const db = await openDb()
+          const read = await getPayload(db)
+          db.close()
+          readBytes = read?.byteLength ?? 0
+          marker = read instanceof Uint8Array ? read[4096] : null
+        } catch (error) {
+          readError = `${error.name}: ${error.message}`
+        }
+        const storage = await storageSnapshot()
+        return { readBytes, marker, readError, storage }
+      }
+    </script>
+  </body>
+</html>

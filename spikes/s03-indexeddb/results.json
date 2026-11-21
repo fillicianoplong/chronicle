@@ -1,0 +1,158 @@
+{
+  "measuredAt": "2026-11-21T18:15:42.816Z",
+  "host": {
+    "platform": "linux",
+    "arch": "x64",
+    "cpuModel": "Intel(R) Xeon(R) Processor",
+    "logicalCpus": 4,
+    "node": "v22.23.4"
+  },
+  "note": "Playwright browsers on this machine. Eviction over days was not observed.",
+  "browsers": [
+    {
+      "browser": "chromium",
+      "write": {
+        "bytes": 20971520,
+        "writeMs": 72.30000000004657,
+        "writeError": null,
+        "readBytes": 20971520,
+        "roundTrip": true,
+        "persist": false,
+        "persistError": null,
+        "before": {
+          "estimate": {
+            "quota": 10737418240,
+            "usage": 0,
+            "usageDetails": {}
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "after": {
+          "estimate": {
+            "quota": 10737491968,
+            "usage": 73728,
+            "usageDetails": {
+              "indexedDB": 73728
+            }
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "origin": "http://127.0.0.1:45607",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.8154.6 Safari/537.36"
+      },
+      "reread": {
+        "readBytes": 20971520,
+        "marker": 108,
+        "readError": null,
+        "storage": {
+          "estimate": {
+            "quota": 10737491968,
+            "usage": 73728,
+            "usageDetails": {
+              "indexedDB": 73728
+            }
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        }
+      }
+    },
+    {
+      "browser": "firefox",
+      "write": {
+        "bytes": 20971520,
+        "writeMs": 155,
+        "writeError": null,
+        "readBytes": 20971520,
+        "roundTrip": true,
+        "persist": null,
+        "persistError": "Error: storage.persist timed out after 20000 ms",
+        "before": {
+          "estimate": {
+            "quota": 10737418240,
+            "usage": 0
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "after": {
+          "estimate": {
+            "quota": 10737418240,
+            "usage": 1116776
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "origin": "http://127.0.0.1:45607",
+        "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:159.0) Gecko/20100101 Firefox/159.0"
+      },
+      "reread": {
+        "readBytes": 20971520,
+        "marker": 108,
+        "readError": null,
+        "storage": {
+          "estimate": {
+            "quota": 10737418240,
+            "usage": 1116776
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        }
+      }
+    },
+    {
+      "browser": "webkit",
+      "write": {
+        "bytes": 20971520,
+        "writeMs": 138,
+        "writeError": null,
+        "readBytes": 20971520,
+        "roundTrip": true,
+        "persist": false,
+        "persistError": null,
+        "before": {
+          "estimate": {
+            "quota": 1048576000,
+            "usage": 0
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "after": {
+          "estimate": {
+            "quota": 1048576000,
+            "usage": 20971587
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        },
+        "origin": "http://127.0.0.1:45607",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Safari/605.1.15"
+      },
+      "reread": {
+        "readBytes": 20971520,
+        "marker": 108,
+        "readError": null,
+        "storage": {
+          "estimate": {
+            "quota": 1048576000,
+            "usage": 20971587
+          },
+          "persisted": false,
+          "persist": null,
+          "errors": []
+        }
+      }
+    }
+  ]
+}
