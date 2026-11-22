@@ -68,6 +68,29 @@ describe('SubjectSearch', () => {
     expect(box).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('shows a close match under No exact match', async () => {
+    const user = userEvent.setup()
+    const source = sourceWith([
+      { ...marie, label: 'Donald Trump', id: 'Q22686' as SubjectHit['id'] },
+    ])
+    source.searchSubjects.mockResolvedValue([
+      {
+        id: 'Q22686' as SubjectHit['id'],
+        label: 'Donald Trump',
+        description: 'President of the United States',
+        match: 'fuzzy',
+      },
+    ])
+    render(<SubjectSearch source={source} onPick={vi.fn()} />)
+    await user.type(
+      screen.getByRole('combobox', { name: 'Subject' }),
+      'Donld Trump',
+    )
+    expect(await screen.findByText('No exact match')).toBeVisible()
+    expect(screen.getByRole('option', { name: /Donald Trump/ })).toBeVisible()
+    expect(source.fetchBatch).not.toHaveBeenCalled()
+  })
+
   it('shows a no-match message and does not ask for a timeline', async () => {
     const user = userEvent.setup()
     const source = sourceWith([])

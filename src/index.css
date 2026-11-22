@@ -148,11 +148,25 @@ a.brand:focus-visible,
   top: 100%;
   right: 0;
   left: 0;
+  background: var(--c-bg);
+  border: var(--bw-strong) solid var(--c-border-strong);
+}
+
+.suggestions ul {
   margin: 0;
   padding: 0;
   list-style: none;
-  background: var(--c-bg);
-  border: var(--bw-strong) solid var(--c-border-strong);
+}
+
+.suggestion-fallback {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3) 0;
+  color: var(--c-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .suggestions li {

@@ -18,16 +18,7 @@ async function replaySearches(page: Page): Promise<string[]> {
     const url = route.request().url()
     seen.push(url)
     const parsed = new URL(url)
-    const search = parsed.searchParams.get('search')
-    const file =
-      parsed.hostname === 'www.wikidata.org' &&
-      parsed.searchParams.get('action') === 'wbsearchentities'
-        ? search === 'Marie Cu'
-          ? 'search-marie-cu.json'
-          : search === 'zzqqxx'
-            ? 'search-zzqqxx.json'
-            : null
-        : null
+    const file = fixtureFor(parsed)
     if (!file) {
       await route.fallback()
       return
@@ -72,7 +63,59 @@ test('an unknown name shows a no-match message and sends no timeline query', asy
     page.getByText(
       'No matching subject. Check the spelling or try another name.',
     ),
+  ).toBeVisible({ timeout: 15_000 })
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+  expect(seen.some((url) => url.includes('query.wikidata.org'))).toBe(false)
+})
+
+test('a misspelled name shows a close match under No exact match', async ({
+  page,
+}) => {
+  const seen = await replaySearches(page)
+  await page.goto('/')
+  await page.getByRole('combobox', { name: 'Subject' }).fill('Donld Trump')
+  await expect(page.getByText('No exact match')).toBeVisible({
+    timeout: 15_000,
+  })
+  await expect(
+    page.getByRole('option', { name: /^Donald Trump/ }),
   ).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
   expect(seen.some((url) => url.includes('query.wikidata.org'))).toBe(false)
 })
+
+test('typing a Q-ID offers that subject', async ({ page }) => {
+  const seen = await replaySearches(page)
+  await page.goto('/')
+  await page.getByRole('combobox', { name: 'Subject' }).fill('Q7186')
+  const option = page.getByRole('option', { name: /Marie Curie/ })
+  await expect(option).toBeVisible()
+  await expect(option).toContainText('Q7186')
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+  expect(seen.some((url) => url.includes('query.wikidata.org'))).toBe(false)
+})
+
+function fixtureFor(url: URL): string | null {
+  if (url.hostname !== 'www.wikidata.org') return null
+  const action = url.searchParams.get('action')
+  const search = url.searchParams.get('search') ?? ''
+  const srsearch = url.searchParams.get('srsearch') ?? ''
+  const ids = url.searchParams.get('ids') ?? ''
+  if (action === 'wbsearchentities') {
+    if (search === 'Marie Cu') return 'search-marie-cu.json'
+    if (search === 'zzqqxx') return 'search-zzqqxx.json'
+    if (search === 'Donld Trump') return 'search-donld-trump.json'
+    return null
+  }
+  if (action === 'query' && url.searchParams.get('list') === 'search') {
+    if (srsearch.startsWith('Donld')) return 'search-donld-trump-fuzzy.json'
+    if (srsearch.startsWith('zzqqxx')) return 'search-zzqqxx-fuzzy.json'
+    return null
+  }
+  if (action === 'wbgetentities') {
+    if (ids === 'Q7186') return 'entity-q7186.json'
+    if (ids.split('|').includes('Q22686')) return 'labels-donld-trump.json'
+    return 'labels-zzqqxx.json'
+  }
+  return null
+}

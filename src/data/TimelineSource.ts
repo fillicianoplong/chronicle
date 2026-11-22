@@ -15,6 +15,8 @@ export interface SubjectHit {
   id: QId
   label: string
   description: string
+  /** Set when the hit came from the fuzzy fallback rather than entity search. */
+  match?: 'exact' | 'fuzzy'
 }
 
 export interface PropertyHit {

@@ -229,9 +229,75 @@ async function recordBatches(filePrefix, qid) {
 const SEARCHES = [
   { name: 'search-marie-cu.json', query: 'Marie Cu', expectId: 'Q7186' },
   { name: 'search-zzqqxx.json', query: 'zzqqxx', expectId: null },
+  {
+    name: 'search-zzqqxx-fuzzy.json',
+    query: 'zzqqxx',
+    kind: 'fuzzy',
+    labelsName: 'labels-zzqqxx.json',
+  },
+  {
+    name: 'search-donld-trump.json',
+    query: 'Donld Trump',
+    expectId: null,
+    expectEmpty: true,
+  },
+  {
+    name: 'search-donld-trump-fuzzy.json',
+    query: 'Donld Trump',
+    kind: 'fuzzy',
+    expectId: 'Q22686',
+    labelsName: 'labels-donld-trump.json',
+  },
+  {
+    name: 'entity-q7186.json',
+    query: 'Q7186',
+    kind: 'entity',
+    expectLabel: 'Marie Curie',
+  },
 ]
 
+function fuzzyWords(text) {
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => `${word}~`)
+    .join(' ')
+}
+
 function searchSpec(entry) {
+  if (entry.kind === 'fuzzy') {
+    return {
+      name: entry.name,
+      gapMs: API_GAP_MS,
+      method: 'GET',
+      url: apiUrl({
+        action: 'query',
+        list: 'search',
+        srsearch: fuzzyWords(entry.query),
+        srnamespace: '0',
+        srlimit: '10',
+      }),
+      accept: 'application/json',
+      query: entry.query,
+    }
+  }
+  if (entry.kind === 'entity') {
+    return {
+      name: entry.name,
+      gapMs: API_GAP_MS,
+      method: 'GET',
+      url: apiUrl({
+        action: 'wbgetentities',
+        ids: entry.query,
+        props: 'labels|descriptions',
+        languages: 'en',
+        languagefallback: '1',
+      }),
+      accept: 'application/json',
+      query: entry.query,
+    }
+  }
   return {
     name: entry.name,
     gapMs: API_GAP_MS,
@@ -251,12 +317,54 @@ function searchSpec(entry) {
 
 async function recordSearch(entry) {
   const body = await record(searchSpec(entry))
+  if (entry.kind === 'fuzzy') {
+    const hits = Array.isArray(body.query?.search) ? body.query.search : []
+    const ids = hits
+      .map((hit) => hit.title)
+      .filter(
+        (title) => typeof title === 'string' && /^Q[1-9][0-9]*$/.test(title),
+      )
+    if (entry.expectId && !ids.includes(entry.expectId)) {
+      throw new Error(
+        `Fuzzy search for ${entry.query} did not include ${entry.expectId}. Titles: ${ids.join(', ')}`,
+      )
+    }
+    if (entry.labelsName && ids.length > 0) {
+      await record({
+        name: entry.labelsName,
+        gapMs: API_GAP_MS,
+        method: 'GET',
+        url: apiUrl({
+          action: 'wbgetentities',
+          ids: ids.join('|'),
+          props: 'labels|descriptions',
+          languages: 'en',
+          languagefallback: '1',
+        }),
+        accept: 'application/json',
+        query: ids.join('|'),
+      })
+    }
+    return body
+  }
+  if (entry.kind === 'entity') {
+    const label = body.entities?.[entry.query]?.labels?.en?.value
+    if (label !== entry.expectLabel) {
+      throw new Error(
+        `${entry.name} label was ${String(label)}, expected ${entry.expectLabel}`,
+      )
+    }
+    return body
+  }
   if (entry.expectId) {
     requireHit(body, entry.expectId, entry.query)
     return body
   }
   if (!Array.isArray(body.search)) {
     throw new Error(`${entry.name} did not return a search list`)
+  }
+  if (entry.expectEmpty && body.search.length !== 0) {
+    throw new Error(`${entry.name} was not empty`)
   }
   return body
 }

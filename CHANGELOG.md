@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A name with no exact subject falls back to a fuzzy search. A close label is offered under "No exact match". A typed Q-ID offers that subject. A name that is still too far away keeps the no-match message.
 - The search box shows Wikidata suggestions after a short pause. Enter opens the highlighted suggestion, or the top one, and shows that subject. A name with no match shows "No matching subject. Check the spelling or try another name." Picking a subject does not load a timeline yet.
 - Subject search asks the Wikidata entity search for matches after a short pause in typing.
 - Wikidata requests go through one gate. It runs one query and one API request at a time, waits two seconds between requests on a lane, aborts a request at 60 seconds, retries server and network failures twice, and honors Retry-After.

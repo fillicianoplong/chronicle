@@ -43,9 +43,7 @@ class RecordingGate extends RequestGate {
 }
 
 function gateFor(body: unknown): RecordingGate {
-  return new RecordingGate(systemClock(), () =>
-    Promise.resolve(jsonResponse(body)),
-  )
+  return gateForBody(() => body)
 }
 
 describe('Wikidata subject search', () => {
@@ -114,4 +112,145 @@ describe('Wikidata subject search', () => {
       label: 'Donald Trump',
     })
   })
+
+  it('offers a close label when the entity search is empty', async () => {
+    vi.useFakeTimers()
+    const gate = gateForBody((url) => bodyFor(url))
+    const source = new WikidataSource(gate)
+    const pending = source.searchSubjects(
+      'Donld Trump',
+      new AbortController().signal,
+    )
+    await vi.advanceTimersByTimeAsync(20_000)
+    const hits = await pending
+    expect(hits.find((hit) => hit.id === 'Q22686')).toMatchObject({
+      label: 'Donald Trump',
+      match: 'fuzzy',
+    })
+    expect(hits.every((hit) => hit.match === 'fuzzy')).toBe(true)
+    expect(
+      gate.sent.map((request) =>
+        new URL(request.url).searchParams.get('action'),
+      ),
+    ).toEqual(['wbsearchentities', 'query', 'wbgetentities'])
+    expect(new URL(gate.sent[1]?.url ?? '').searchParams.get('srsearch')).toBe(
+      'Donld~ Trump~',
+    )
+  })
+
+  it('offers nothing for a nonsense name after the fuzzy results are too far', async () => {
+    vi.useFakeTimers()
+    const gate = gateForBody((url) => bodyFor(url))
+    const source = new WikidataSource(gate)
+    const pending = source.searchSubjects(
+      'zzqqxx',
+      new AbortController().signal,
+    )
+    await vi.advanceTimersByTimeAsync(20_000)
+    await expect(pending).resolves.toEqual([])
+  })
+
+  it('offers Marie Curie for a typed Q-ID', async () => {
+    const gate = gateForBody((url) => bodyFor(url))
+    const source = new WikidataSource(gate)
+    const hits = await source.searchSubjects(
+      'Q7186',
+      new AbortController().signal,
+    )
+    expect(hits[0]).toMatchObject({
+      id: 'Q7186',
+      label: 'Marie Curie',
+      match: 'exact',
+    })
+    expect(hits[0]?.description).not.toBe('')
+    const url = new URL(gate.sent[0]?.url ?? '')
+    expect(url.searchParams.get('action')).toBe('wbgetentities')
+    expect(url.searchParams.get('ids')).toBe('Q7186')
+    expect(url.searchParams.get('languagefallback')).toBe('1')
+  })
+
+  it('treats a non-id as a name search and looks up a bare Q-ID', async () => {
+    for (const text of ['Q0', 'Q01', 'Q7186 x']) {
+      const gate = gateForBody(() => ({
+        search: [{ id: 'Q1', label: 'Universe', description: '' }],
+      }))
+      const source = new WikidataSource(gate)
+      await source.searchSubjects(text, new AbortController().signal)
+      const url = new URL(gate.sent[0]?.url ?? '')
+      expect(url.searchParams.get('action')).toBe('wbsearchentities')
+      expect(url.searchParams.get('search')).toBe(text)
+    }
+    const gate = gateForBody(() => ({
+      entities: {
+        Q1: {
+          labels: { en: { value: 'Universe' } },
+          descriptions: { en: { value: 'everything' } },
+        },
+      },
+    }))
+    const source = new WikidataSource(gate)
+    const found = await source.searchSubjects(
+      'Q1',
+      new AbortController().signal,
+    )
+    expect(found[0]?.label).toBe('Universe')
+    expect(new URL(gate.sent[0]?.url ?? '').searchParams.get('action')).toBe(
+      'wbgetentities',
+    )
+    expect(new URL(gate.sent[0]?.url ?? '').searchParams.get('ids')).toBe('Q1')
+  })
 })
+
+const fixtureModules = import.meta.glob('../../../tests/fixtures/*.json', {
+  eager: true,
+  import: 'default',
+})
+
+function fixtureBody(name: string): unknown {
+  const entry = Object.entries(fixtureModules).find(([file]) =>
+    file.endsWith(`/${name}`),
+  )
+  const fixture = entry?.[1] as { response?: { body?: unknown } } | undefined
+  if (!fixture?.response) throw new Error(`Missing fixture ${name}`)
+  return fixture.response.body
+}
+
+function bodyFor(url: string): unknown {
+  const parsed = new URL(url)
+  const action = parsed.searchParams.get('action')
+  const search = parsed.searchParams.get('search') ?? ''
+  const srsearch = parsed.searchParams.get('srsearch') ?? ''
+  const ids = parsed.searchParams.get('ids') ?? ''
+  if (action === 'wbsearchentities' && search === 'Donld Trump') {
+    return fixtureBody('search-donld-trump.json')
+  }
+  if (action === 'wbsearchentities' && search === 'zzqqxx') {
+    return fixtureBody('search-zzqqxx.json')
+  }
+  if (action === 'query' && srsearch.startsWith('Donld')) {
+    return fixtureBody('search-donld-trump-fuzzy.json')
+  }
+  if (action === 'query' && srsearch.startsWith('zzqqxx')) {
+    return fixtureBody('search-zzqqxx-fuzzy.json')
+  }
+  if (action === 'wbgetentities' && ids === 'Q7186') {
+    return fixtureBody('entity-q7186.json')
+  }
+  if (action === 'wbgetentities' && ids.includes('Q22686')) {
+    return fixtureBody('labels-donld-trump.json')
+  }
+  if (action === 'wbgetentities') return fixtureBody('labels-zzqqxx.json')
+  return { search: [] }
+}
+
+function gateForBody(select: (url: string) => unknown): RecordingGate {
+  return new RecordingGate(systemClock(), (input) => {
+    const url =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url
+    return Promise.resolve(jsonResponse(select(url)))
+  })
+}

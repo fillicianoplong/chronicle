@@ -106,6 +106,7 @@ export function SubjectSearch({
     }
   }
 
+  const fuzzy = open && hits.some((hit) => hit.match === 'fuzzy')
   const status =
     notice ||
     (open
@@ -147,34 +148,38 @@ export function SubjectSearch({
           <button type="submit">Search</button>
         </div>
         {open ? (
-          <ul
-            id="subject-suggestions"
-            className="suggestions"
-            role="listbox"
-            aria-label="Suggestions"
-          >
-            {hits.map((hit, index) => (
-              <li
-                key={hit.id}
-                id={optionId(hit.id)}
-                role="option"
-                aria-selected={index === active}
-                onMouseEnter={() => {
-                  setActive(index)
-                }}
-                onMouseDown={(event) => {
-                  event.preventDefault()
-                  pick(hit)
-                }}
-              >
-                <span className="suggestion-label">{hit.label}</span>
-                <span className="suggestion-description">
-                  {hit.description}
-                </span>
-                <span className="suggestion-id">{hit.id}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="suggestions">
+            {fuzzy ? (
+              <p className="suggestion-fallback">No exact match</p>
+            ) : null}
+            <ul
+              id="subject-suggestions"
+              role="listbox"
+              aria-label="Suggestions"
+            >
+              {hits.map((hit, index) => (
+                <li
+                  key={hit.id}
+                  id={optionId(hit.id)}
+                  role="option"
+                  aria-selected={index === active}
+                  onMouseEnter={() => {
+                    setActive(index)
+                  }}
+                  onMouseDown={(event) => {
+                    event.preventDefault()
+                    pick(hit)
+                  }}
+                >
+                  <span className="suggestion-label">{hit.label}</span>
+                  <span className="suggestion-description">
+                    {hit.description}
+                  </span>
+                  <span className="suggestion-id">{hit.id}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : null}
       </div>
       <p className="subject-notice" role="status">

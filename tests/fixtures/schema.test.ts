@@ -17,6 +17,12 @@ const required = [
   'california-batch-3.json',
   'search-marie-cu.json',
   'search-zzqqxx.json',
+  'search-zzqqxx-fuzzy.json',
+  'labels-zzqqxx.json',
+  'search-donld-trump.json',
+  'search-donld-trump-fuzzy.json',
+  'labels-donld-trump.json',
+  'entity-q7186.json',
 ]
 
 interface Fixture {
@@ -119,6 +125,20 @@ describe('recorded Wikidata fixtures', () => {
       search?: unknown[]
     }
     expect(none.search).toEqual([])
+    expect(byName.get('search-donld-trump.json')?.query).toBe('Donld Trump')
+    const typo = byName.get('search-donld-trump.json')?.response.body as {
+      search?: unknown[]
+    }
+    expect(typo.search).toEqual([])
+    const fuzzy = byName.get('search-donld-trump-fuzzy.json')?.response
+      .body as { query?: { search?: { title?: string }[] } }
+    expect(fuzzy.query?.search?.some((hit) => hit.title === 'Q22686')).toBe(
+      true,
+    )
+    const curie = byName.get('entity-q7186.json')?.response.body as {
+      entities?: { Q7186?: { labels?: { en?: { value?: string } } } }
+    }
+    expect(curie.entities?.Q7186?.labels?.en?.value).toBe('Marie Curie')
     expect(byName.get('search-california.json')?.query).toBe('California')
     expect(byName.get('search-julius-caesar.json')?.query).toBe('Julius Caesar')
     expect(byName.get('properties-juris.json')?.query).toBe('jurisdiction')
